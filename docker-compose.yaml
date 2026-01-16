@@ -19,6 +19,7 @@ services:
     networks:
       - cy-weather-network
 
+
   # Service Frontend Web (Vue.js + Nginx)
   web:
     build:
