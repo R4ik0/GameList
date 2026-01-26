@@ -75,5 +75,3 @@ def get_X_games(X: int):
     response = response.json()
 
     return response
-
-    external_games, expansions, dlcs, bundles
