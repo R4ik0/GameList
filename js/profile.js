@@ -24,11 +24,12 @@ async function rateGame(gameId, rating) {
   });
 }
 
-// if (!localStorage.getItem("token")) {
-//     window.location.href = "/GameList/";
-// }
+if (!localStorage.getItem("access_token")) {
+    window.location.href = "/GameList/";
+}
 
 document.getElementById("logout-btn").addEventListener("click", () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
     window.location.href = "/GameList/";
 });

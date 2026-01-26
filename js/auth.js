@@ -1,18 +1,40 @@
+const API_URL = "http://localhost:8000";
+
 async function login() {
   const username = document.getElementById("username").value;
   const password = document.getElementById("password").value;
 
-  const res = await api("/login", { username, password });
+  const formData = new URLSearchParams();
+  formData.append("username", username);
+  formData.append("password", password);
 
-  // Ici on suppose que le backend renvoie { success: true, token: "JWT_TOKEN_HERE" }
-  if (res.success && res.token) {
-    // On stocke le JWT dans le navigateur
-    localStorage.setItem("token", res.token);
-    window.location = "home.html";
-  } else {
-    document.getElementById("error").innerText = "Login failed";
+  const res = await fetch(API_URL + "/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: formData
+  });
+
+  if (!res.ok) {
+    document.getElementById("error").innerText = "Password or username incorrect";
+    return;
   }
+
+  const data = await res.json();
+
+  // Backend renvoie { access_token, refresh_token }
+  localStorage.setItem("access_token", data.access_token);
+  localStorage.setItem("refresh_token", data.refresh_token);
+
+  window.location.href = "/home.html";
 }
+
+document.getElementById("login-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  login();
+});
+
 
 async function register() {
   const username = document.getElementById("username").value;
