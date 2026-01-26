@@ -47,7 +47,7 @@ def test_create_and_get_user(clean_db):
     assert pwd_context.verify(password, user.password)  # Vérifie le hash
 
     # 2️⃣ Récupération par ID
-    retrieved = get_user(user.id)
+    retrieved = get_user(user.username)
     assert retrieved is not None
     assert retrieved.id == user.id
     assert retrieved.username == user.username
@@ -92,12 +92,12 @@ def test_authenticate_user(clean_db):
     assert user is not None
 
     # Authentification correcte
-    auth_user = authenticate_user(user.id, password)
+    auth_user = authenticate_user(user.username, password)
     assert auth_user is not None
     assert auth_user.username == username
 
     # Mauvais mot de passe
-    auth_wrong = authenticate_user(user.id, wrong_password)
+    auth_wrong = authenticate_user(user.username, wrong_password)
     assert auth_wrong is None
 
     # Utilisateur inexistant
