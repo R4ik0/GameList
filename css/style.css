@@ -5,18 +5,55 @@ body {
   color: #e5e7eb;
 }
 
+.login-box {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+.login-box input {
+  text-align: center;
+}
+
+.login-box button {
+  width: 150px;
+  padding: 10px;
+}
+
+.login-box button:hover {
+  background: #2a81af;
+}
+
+.login-box input {
+  text-align: left;
+}
+
 header {
   background: #151f2e;
-  padding: 15px 30px;
+  padding: 7px 60px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-a {
-  color: #3db4f2;
+
+.nav-links a {
+  padding: 10px 15px;
+  border-radius: 4px;
+  margin-left: 5px;
+  color: #a0b1c5;
   text-decoration: none;
   margin-left: 15px;
+}
+
+.nav-links a:hover {
+  color: #d3d5f3;
+}
+
+header h2 {
+    padding-left: 10px;
+    margin: 0;
+    align-self: center;
 }
 
 .container {

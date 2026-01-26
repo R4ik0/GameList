@@ -23,3 +23,12 @@ async function rateGame(gameId, rating) {
     rating: rating
   });
 }
+
+if (!localStorage.getItem("token")) {
+    window.location.href = "index.html";
+}
+
+document.getElementById("logout-btn").addEventListener("click", () => {
+    localStorage.removeItem("token");
+    window.location.href = "index.html";
+});

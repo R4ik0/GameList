@@ -1,14 +1,24 @@
 const API_URL = "https://YOUR_BACKEND_URL";
 
-async function api(endpoint, data=null) {
+export async function api(endpoint, data = null) {
+  const token = localStorage.getItem("token");
+
   const options = {
     method: data ? "POST" : "GET",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include"
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { "Authorization": "Bearer " + token } : {})
+    },
+    body: data ? JSON.stringify(data) : null
   };
 
-  if (data) options.body = JSON.stringify(data);
-
   const res = await fetch(API_URL + endpoint, options);
-  return await res.json();
+
+  // Si le token est invalide ou expiré
+  if (res.status === 401) {
+    localStorage.removeItem("token");
+    window.location.href = "index.html";
+  }
+
+  return res.json();
 }
