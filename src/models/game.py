@@ -1,7 +1,10 @@
 from pydantic import BaseModel
 import requests
-from a_ignorer import CLIENT_ID, ACCESS_TOKEN
+import os
 
+
+CLIENT_ID = os.environ["CLIENT_ID"]
+ACCESS_TOKEN = os.environ["ACCESS_TOKEN"]
 
 
 # Do we add those ? 
