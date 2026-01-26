@@ -1,6 +1,14 @@
 from pydantic import BaseModel
+from dotenv import load_dotenv
 import requests
-from a_ignorer import CLIENT_ID, ACCESS_TOKEN
+import os
+
+from pprint import pprint
+
+
+load_dotenv()
+CLIENT_ID = os.environ["CLIENT_ID"]
+ACCESS_TOKEN = os.environ["ACCESS_TOKEN"]
 
 
 
@@ -32,14 +40,17 @@ def get_game_from_igdb(game_id):
 
     response.raise_for_status()
 
-    response = response.json()
+    response = response.json()[0]
 
-    game = Game(id = game_id,
-                name = response.name,
-                genres = response.genres,
-                themes = response.themes,
-                game_modes = response.game_modes,
-                platforms = response.platforms,
-                storyline = response.storyline
-                )
+    game = Game(
+        id = game_id,
+        name = response['name'],
+        genres = response['genres'],
+        themes = response['themes'],
+        game_modes = response['game_modes'],
+        platforms = response['platforms'],
+        storyline = response['storyline']
+    )
     return game
+
+pprint(get_game_from_igdb(2003).model_dump())

@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Depends
-from routers import auth_router
+from src.routers import auth_router
 from dependencies import get_current_user
 import uvicorn
 

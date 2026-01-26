@@ -1,3 +1,4 @@
+import pandas as pd
 import sqlite3
 data_path = "data/"
 
@@ -15,4 +16,8 @@ CREATE TABLE IF NOT EXISTS user (
 """)
 
 conn.commit()
+
+
+df = pd.read_sql_query("SELECT * FROM user", conn)
+print(df)
 conn.close()

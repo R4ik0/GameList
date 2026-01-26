@@ -102,3 +102,6 @@ def authenticate_user(id: int, password: str) -> Optional[UserDB]:
     if not verify_password(password, user.password):
         return None
     return user
+
+create_user("admin", "adminpass", role="admin")
+create_user("user", "userpass", role="user")

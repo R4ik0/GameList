@@ -2,3 +2,6 @@ pydantic
 fastapi
 passlib[argon2]
 pytest
+requests
+python-jose
+python-dotenv
