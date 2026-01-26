@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from dotenv import load_dotenv
+import random as rd
 import requests
 import os
 
@@ -53,3 +54,26 @@ def get_game_from_igdb(game_id):
     return game
 
 pprint(get_game_from_igdb(2003).model_dump())
+
+
+def get_X_games(X: int):
+
+    url = "https://api.igdb.com/v4/games/"
+
+    headers = {
+        "Client-ID": CLIENT_ID,
+        "Authorization": f"Bearer {ACCESS_TOKEN}",
+        "Content-Type": "text/plain"
+    }
+
+    body = f"fields name, id; limit {X}; offset {rd.randint(0,10000)}"
+
+    response = requests.post(url, headers=headers, data=body)
+
+    response.raise_for_status()
+
+    response = response.json()
+
+    return response
+
+    external_games, expansions, dlcs, bundles
