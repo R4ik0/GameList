@@ -19,15 +19,15 @@ class UserDB(BaseModel):
     role: str
 
 
-def get_user(id: int) -> Optional[UserDB]:
+def get_user(username: str) -> Optional[UserDB]:
     conn = sqlite3.connect(data_path +"users.db")
     cursor = conn.cursor()
 
     cursor.execute("""
     SELECT id, username, password, gamelist, role
     FROM user
-    WHERE id = ?
-    """, (id, ))
+    WHERE username = ?
+    """, (username, ))
 
     row = cursor.fetchone()
     conn.close()
