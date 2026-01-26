@@ -25,10 +25,10 @@ async function rateGame(gameId, rating) {
 }
 
 // if (!localStorage.getItem("token")) {
-//     window.location.href = "index.html";
+//     window.location.href = "/GameList/";
 // }
 
 document.getElementById("logout-btn").addEventListener("click", () => {
     localStorage.removeItem("token");
-    window.location.href = "/";
+    window.location.href = "/GameList/";
 });

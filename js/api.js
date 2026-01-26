@@ -14,11 +14,5 @@ export async function api(endpoint, data = null) {
 
   const res = await fetch(API_URL + endpoint, options);
 
-  // Si le token est invalide ou expiré
-  if (res.status === 401) {
-    localStorage.removeItem("token");
-    window.location.href = "index.html";
-  }
-
   return res.json();
 }

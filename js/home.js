@@ -18,10 +18,10 @@ async function loadRecommendations() {
 }
 
 // if (!localStorage.getItem("token")) {
-//     window.location.href = "/";
+//     window.location.href = "/GameList/";
 // }
 
 document.getElementById("logout-btn").addEventListener("click", () => {
     localStorage.removeItem("token");
-    window.location.href = "/";
+    window.location.href = "/GameList/";
 });
