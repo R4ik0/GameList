@@ -6,6 +6,7 @@ body {
 }
 
 .login-box {
+  margin-top: 100px;
   display: flex;
   flex-direction: column;
   text-align: center;
@@ -26,6 +27,11 @@ body {
 
 .login-box input {
   text-align: left;
+}
+
+.error-message {
+  color: #ff4d4f;
+  margin: 5px;
 }
 
 header {

@@ -14,16 +14,15 @@
             <h1>GameList</h1>
         </div>
         <p>Track, rate and discover new games</p>
+        <div id="error" class="error-message"></div>
+        <form id="login-form">
+            <input id="username" placeholder="Username" class="input">
+            <input id="password" type="password" placeholder="Password" class="input">
 
-        <input id="username" placeholder="Username" class="input">
-        <input id="password" type="password" placeholder="Password" class="input">
-
-        <br><br>
-        <button onclick="login()" class="button">Login</button>
-        <br>
+            <br><br>
+            <button type="submit" class="button">Login</button>
+        </form>
         <button onclick="register()" class="button">Register</button>
-
-        <p id="error"></p>
     </div>
 </div>
 <script src="js/api.js"></script>
