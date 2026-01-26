@@ -95,8 +95,8 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 
 
-def authenticate_user(id: int, password: str) -> Optional[UserDB]:
-    user = get_user(id)
+def authenticate_user(username: str, password: str) -> Optional[UserDB]:
+    user = get_user(username)
     if not user:
         return None
     if not verify_password(password, user.password):
