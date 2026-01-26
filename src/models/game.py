@@ -56,7 +56,7 @@ def get_game_from_igdb(game_id):
 pprint(get_game_from_igdb(2003).model_dump())
 
 
-def get_X_games(X: int):
+def get_X_games(X):
 
     url = "https://api.igdb.com/v4/games/"
 
@@ -66,7 +66,7 @@ def get_X_games(X: int):
         "Content-Type": "text/plain"
     }
 
-    body = f"fields name, id; limit {X}; offset {rd.randint(0,10000)}"
+    body = f"fields name, id; limit {X}; offset {rd.randint(0,10000)};"
 
     response = requests.post(url, headers=headers, data=body)
 
