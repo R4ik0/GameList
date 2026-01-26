@@ -89,6 +89,12 @@ def create_user(username: str, password: str, role: str = "user") -> Optional[Us
 
     return user
 
+def get_user_gameslist(username: str) -> Optional[Dict[int, float]]:
+    user = get_user(username)
+    if user:
+        return user.gamelist
+    return None
+
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
