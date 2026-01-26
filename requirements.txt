@@ -1,0 +1,4 @@
+pydantic
+fastapi
+passlib[argon2]
+pytest
