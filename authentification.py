@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from jose import jwt, JWTError
 from typing import Optional
+from fastapi import HTTPException
 
 
 
@@ -31,10 +32,18 @@ def decode_access_token(token: str) -> TokenData:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
         if username is None:
-            raise credentials_exception
+            raise HTTPException(
+                status_code=401,
+                detail="Could not validate credentials",
+                headers={"WWW-Authenticate": "Bearer"}
+            )
         return TokenData(username=username)
     except JWTError:
-        return TokenData()
+        raise HTTPException(
+            status_code=401,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
 
 def decode_token(token: str) -> dict:
     try:

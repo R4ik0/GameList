@@ -1,9 +1,8 @@
-from fastapi import APIRouter, HTTPException, Depends, Form
-from fastapi.security import OAuth2PasswordRequestForm
+from pickle import GET
+from fastapi import APIRouter, Depends
 
-from src.models.token_model import Token
-from src.models.user import UserDB, authenticate_user, create_user
-from authentification import create_access_token, create_refresh_token, decode_token
+
+from src.models.user import UserDB, update_gamelist
 from dependencies import get_current_user
 
 
@@ -16,7 +15,11 @@ router = APIRouter(prefix="", tags=["user"])
 # -----------------------
 @router.get("/me", response_model=UserDB)
 async def read_users_me(current_user: UserDB = Depends(get_current_user)):
+    print(current_user)
     return current_user
+
+# curl -X GET "http://localhost:8000/me" \
+#   -H "Authorization: Bearer "
 
 
 # -----------------------
@@ -24,4 +27,18 @@ async def read_users_me(current_user: UserDB = Depends(get_current_user)):
 # -----------------------
 @router.get("/GamesList", response_model=dict)
 async def get_gameslist(current_user: UserDB = Depends(get_current_user)):
+    return current_user.gamelist
+
+
+# -----------------------
+# ADD OR UPDATE A GAME IN USER'S GAMESLIST
+# -----------------------
+@router.post("/GamesList/{game_id}/{rating}", response_model=dict)
+async def add_or_update_game(
+    game_id: int,
+    rating: float,
+    current_user: UserDB = Depends(get_current_user)
+):
+    current_user.gamelist[game_id] = rating
+    update_gamelist(current_user)
     return current_user.gamelist

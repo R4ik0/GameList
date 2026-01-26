@@ -30,6 +30,7 @@ def get_user(username: str) -> Optional[UserDB]:
     """, (username, ))
 
     row = cursor.fetchone()
+    print(row)
     conn.close()
     if row:
         id, username, password, data_json, role = row
@@ -94,6 +95,22 @@ def get_user_gameslist(username: str) -> Optional[Dict[int, float]]:
     if user:
         return user.gamelist
     return None
+
+def update_gamelist(user: UserDB) -> None:
+    conn = sqlite3.connect(data_path +"users.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    UPDATE user
+    SET gamelist = ?
+    WHERE id = ?
+    """, (
+        json.dumps(user.gamelist),
+        user.id
+    ))
+
+    conn.commit()
+    conn.close()
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
