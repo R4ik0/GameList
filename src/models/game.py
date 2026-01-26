@@ -11,7 +11,6 @@ CLIENT_ID = os.environ["CLIENT_ID"]
 ACCESS_TOKEN = os.environ["ACCESS_TOKEN"]
 
 
-
 # Do we add those ? 
 # language_supports: list, developers: not sure how to access, player_perspectives: list, keywords: list, cover: int idk how to print it on the front
 class Game(BaseModel):
