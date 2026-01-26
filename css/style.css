@@ -1,0 +1,91 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #0b1622;
+  color: #e5e7eb;
+}
+
+.login-box {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+.login-box input {
+  text-align: center;
+}
+
+.login-box button {
+  width: 150px;
+  padding: 10px;
+}
+
+.login-box button:hover {
+  background: #2a81af;
+}
+
+.login-box input {
+  text-align: left;
+}
+
+header {
+  background: #151f2e;
+  padding: 7px 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+
+.nav-links a {
+  padding: 10px 15px;
+  border-radius: 4px;
+  margin-left: 5px;
+  color: #a0b1c5;
+  text-decoration: none;
+  margin-left: 15px;
+}
+
+.nav-links a:hover {
+  color: #d3d5f3;
+}
+
+header h2 {
+    padding-left: 10px;
+    margin: 0;
+    align-self: center;
+}
+
+.container {
+  padding: 30px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: #151f2e;
+  border-radius: 6px;
+  padding: 15px;
+}
+
+.card h3 {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+input, button {
+  padding: 8px;
+  border-radius: 4px;
+  border: none;
+  margin-top: 5px;
+}
+
+button {
+  background: #3db4f2;
+  color: white;
+  cursor: pointer;
+}
