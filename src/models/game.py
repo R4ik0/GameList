@@ -28,21 +28,15 @@ class Game(BaseModel):
 
 def get_game_from_igdb(game_id):
     url = "https://api.igdb.com/v4/games"
-    
     headers = {
         "Client-ID": CLIENT_ID,
         "Authorization": f"Bearer {ACCESS_TOKEN}",
         "Content-Type": "text/plain"
     }
-    
     body = f"fields *; where id = {game_id};"
-
     response = requests.post(url, headers=headers, data=body)
-
     response.raise_for_status()
-
     response = response.json()[0]
-
     game = Game(
         id = game_id,
         name=response.get("name"),
@@ -54,7 +48,18 @@ def get_game_from_igdb(game_id):
     )
     return game
 
-pprint(get_game_from_igdb(2003).model_dump())
+def get_name_from_attribute_id(attribute, attribute_id):
+    url = f"https://api.igdb.com/v4/{attribute}/"
+    headers = {
+        "Client-ID": CLIENT_ID,
+        "Authorization": f"Bearer {ACCESS_TOKEN}",
+        "Content-Type": "text/plain"
+    }
+    body = f"fields name; where id = {attribute_id};"
+    response = requests.post(url, headers=headers, data=body)
+    response.raise_for_status()
+    name = response.json()
+    return name
 
 
 def get_X_games(X):
