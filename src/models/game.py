@@ -5,8 +5,6 @@ import requests
 import os
 from typing import List, Optional
 
-from pprint import pprint
-
 
 load_dotenv()
 CLIENT_ID = os.environ["CLIENT_ID"]
@@ -18,10 +16,10 @@ ACCESS_TOKEN = os.environ["ACCESS_TOKEN"]
 class Game(BaseModel):
     id: int
     name: str
-    genres: Optional[List[int]] = None
-    themes: Optional[List[int]] = None
-    game_modes: Optional[List[int]] = None
-    platforms: Optional[List[int]] = None
+    genres: Optional[List[int|str]] = None
+    themes: Optional[List[int|str]] = None
+    game_modes: Optional[List[int|str]] = None
+    platforms: Optional[List[int|str]] = None
     storyline: Optional[str] = None
 
 
@@ -58,7 +56,7 @@ def get_name_from_attribute_id(attribute, attribute_id):
     body = f"fields name; where id = {attribute_id};"
     response = requests.post(url, headers=headers, data=body)
     response.raise_for_status()
-    name = response.json()
+    name = response.json()[0]['name']
     return name
 
 
