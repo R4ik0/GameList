@@ -128,4 +128,7 @@ def authenticate_user(username: str, password: str) -> Optional[UserDB]:
     return user
 
 create_user("admin", "adminpass", role="admin")
+admin = get_user("admin")
+admin.gamelist = {2003:8,1942:2}
+update_user_gameslist(admin)
 create_user("user", "userpass", role="user")

@@ -105,3 +105,17 @@ def search_game(name):
         image = get_cover_url(response.json()[i]['id'])
         result[i]['image'] = image
     return result
+
+
+def get_similar_games(id):
+    url = "https://api.igdb.com/v4/games"
+    headers = {
+        "Client-ID": CLIENT_ID,
+        "Authorization": f"Bearer {ACCESS_TOKEN}",
+        "Content-Type": "text/plain"
+    }
+    body = f"fields similar_games; where id = {id};"
+    response = requests.post(url, headers=headers, data=body)
+    response.raise_for_status()
+    result = response.json()[0]['similar_games']
+    return result
