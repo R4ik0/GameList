@@ -2,7 +2,7 @@ from pickle import GET
 from fastapi import APIRouter, Depends
 
 
-from src.models.user import UserDB, update_gamelist
+from src.models.user import UserDB, update_user_gameslist
 from dependencies import get_current_user
 
 
@@ -40,5 +40,5 @@ async def add_or_update_game(
     current_user: UserDB = Depends(get_current_user)
 ):
     current_user.gamelist[game_id] = rating
-    update_gamelist(current_user)
+    update_user_gameslist(current_user)
     return current_user.gamelist

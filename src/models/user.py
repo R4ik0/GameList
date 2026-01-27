@@ -2,6 +2,7 @@ from typing import Optional, Dict
 from pydantic import BaseModel
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
+from pydantic import Field
 import json
 import sqlite3
 
@@ -15,7 +16,7 @@ class UserDB(BaseModel):
     id : int
     username: str
     password: str
-    gamelist: Dict[int, float] = {}
+    gamelist: Dict[int, float] = Field(default_factory=dict)
     role: str
 
 
@@ -96,7 +97,7 @@ def get_user_gameslist(username: str) -> Optional[Dict[int, float]]:
         return user.gamelist
     return None
 
-def update_gamelist(user: UserDB) -> None:
+def update_user_gameslist(user: UserDB) -> None:
     conn = sqlite3.connect(data_path +"users.db")
     cursor = conn.cursor()
 

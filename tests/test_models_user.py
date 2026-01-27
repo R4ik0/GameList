@@ -3,7 +3,6 @@ import sqlite3
 import os
 import sys
 
-
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "")))
 
 from src.models.user import *
@@ -11,7 +10,6 @@ from src.models.user import *
 # --------------------------
 # Fixtures
 # --------------------------
-
 @pytest.fixture
 def clean_db():
     """
@@ -33,7 +31,6 @@ def clean_db():
 # --------------------------
 # Tests
 # --------------------------
-
 def test_create_and_get_user(clean_db):
     # 1️⃣ Création utilisateur
     username = "alice"
@@ -68,9 +65,55 @@ def test_create_duplicate_user(clean_db):
 
 
 # --------------------------
+# Tests get_user_gameslist
+# --------------------------
+def test_get_user_gameslist(clean_db):
+    username = "dave"
+    password = "pass123"
+
+    # Créer un utilisateur
+    user = create_user(username=username, password=password)
+    assert user is not None
+
+    # Gamelist vide par défaut
+    gamelist = get_user_gameslist(username)
+    assert gamelist == {}
+    assert isinstance(gamelist, dict)
+
+    # user inconnu
+    gamelist = get_user_gameslist("ghost")
+    assert gamelist is None
+
+
+# --------------------------
+# Tests update_user_gameslist
+# --------------------------
+def test_update_user_gameslist(clean_db):
+    username = "eve"
+    password = "password"
+
+    # Création utilisateur
+    user = create_user(username=username, password=password)
+    assert user is not None
+
+    # Mise à jour de la gamelist
+    user.gamelist = {
+        1: 12.5,
+        2: 42.0,
+        10: 3.14
+    }
+
+    update_user_gameslist(user)
+
+    # Récupération depuis la DB
+    updated_user = get_user(username)
+    assert updated_user is not None
+    assert updated_user.gamelist == user.gamelist
+
+
+# --------------------------
 # Tests verify_password
 # --------------------------
-
 def test_verify_password():
     plain = "mysecret"
     hashed = pwd_context.hash(plain)
@@ -78,10 +121,10 @@ def test_verify_password():
     assert verify_password(plain, hashed) is True
     assert verify_password("wrongpassword", hashed) is False
 
+
 # --------------------------
 # Tests authenticate_user
 # --------------------------
-
 def test_authenticate_user(clean_db):
     username = "charlie"
     password = "supersecret"

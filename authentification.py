@@ -6,7 +6,7 @@ from fastapi import HTTPException
 
 
 from config import *
-from src.models.token_model import *
+from src.models.token import *
 
 
 def create_access_token(data: dict, expiration_delta: Optional[timedelta] = None):
