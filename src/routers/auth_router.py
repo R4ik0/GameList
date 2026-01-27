@@ -1,9 +1,8 @@
 from fastapi import APIRouter, HTTPException, Depends, Form
 from fastapi.security import OAuth2PasswordRequestForm
 
-from src.models.token import Token
+from src.models.token import Token, RefreshRequest, create_access_token, create_refresh_token, decode_token
 from src.models.user import UserDB, authenticate_user, create_user
-from authentification import create_access_token, create_refresh_token, decode_token
 from dependencies import get_current_user
 
 
@@ -71,8 +70,8 @@ async def protected(current_user: UserDB = Depends(get_current_user)):
 # REFRESH TOKEN
 # -----------------------
 @router.post("/refresh", response_model=Token)
-async def refresh_token(refresh_token: str):
-    payload = decode_token(refresh_token)
+async def refresh_token(request: RefreshRequest):
+    payload = decode_token(request.refresh_token)
     if not payload or payload.get("type") != "refresh":
         raise HTTPException(status_code=401, detail="Invalid refresh token")
 

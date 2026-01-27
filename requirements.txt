@@ -3,6 +3,7 @@ fastapi
 passlib[argon2]
 pytest
 pytest-cov
+pytest-mock
 requests
 python-jose
 python-dotenv
