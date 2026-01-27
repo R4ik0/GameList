@@ -24,7 +24,6 @@ class Game(BaseModel):
     cover: Optional[str] = None
 
 
-
 def get_game_from_igdb(game_id):
     url = "https://api.igdb.com/v4/games"
     headers = {
