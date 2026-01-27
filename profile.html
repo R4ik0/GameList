@@ -12,8 +12,24 @@
     <a href='home'>
       <img src="images/logo.png" alt="GameList Logo" width="50" height="50"> 
     </a>
-    <h2>My Profile</h2>
+    <h2>GameList</h2>
   </div>
+
+  <div style="display: flex;">
+    <div class="search-box">
+      <svg class="search-icon" viewBox="0 0 24 24">
+        <path d="M10 2a8 8 0 105.293 14.293l4.707 4.707 1.414-1.414-4.707-4.707A8 8 0 0010 2zm0 2a6 6 0 110 12 6 6 0 010-12z"/>
+      </svg>
+      <input
+        type="text"
+        id="search-input"
+        placeholder="Search GameList"
+        autocomplete="off"
+      />
+      <div id="search-results" class="search-results"></div>
+    </div>
+  </div>
+
   <div class="nav-links">
     <a href="home">Home</a>
     <a href="profile">Profile</a>
@@ -21,12 +37,16 @@
   </div>
 </header>
 
+<div id="search-overlay"></div>
+
 <div class="container">
+  <h1 id="username"></h1>
   <h2>My Games</h2>
-  <div id="my-games"></div>
+  <ul id="user-games"></ul>
 </div>
 
 <script src="js/api.js"></script>
 <script src="js/profile.js"></script>
+<script src="js/search.js"></script>
 </body>
 </html>

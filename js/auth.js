@@ -27,7 +27,7 @@ async function login() {
   localStorage.setItem("access_token", data.access_token);
   localStorage.setItem("refresh_token", data.refresh_token);
 
-  window.location.href = "/home.html";
+  window.location.href = "home";
 }
 
 document.getElementById("login-form").addEventListener("submit", (e) => {
@@ -44,7 +44,7 @@ async function register() {
 
   if (res.success && res.token) {
     localStorage.setItem("token", res.token);
-    window.location = "home.html";
+    window.location.href = "home";
   } else {
     document.getElementById("error").innerText = "Registration failed";
   }
