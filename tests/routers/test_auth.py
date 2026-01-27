@@ -149,7 +149,7 @@ def test_refresh_token_fail_invalid(mock_decode):
     mock_decode.return_value = {}
     response = client.post(
         "/refresh",
-        json={"refresh_token": "badtoken"}  # ⚠️ utilise data pour Form
+        json={"refresh_token": "badtoken"}
     )
     assert response.status_code == 401
     assert response.json()["detail"] == "Invalid refresh token"
@@ -160,7 +160,7 @@ def test_refresh_token_fail_no_sub(mock_decode):
     mock_decode.return_value = {"type": "refresh"}
     response = client.post(
         "/refresh",
-        json={"refresh_token": "token123"}  # ⚠️ utilise data pour Form
+        json={"refresh_token": "token123"}
     )
     assert response.status_code == 401
     assert response.json()["detail"] == "Invalid token payload"
