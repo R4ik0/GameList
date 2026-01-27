@@ -42,3 +42,17 @@ async def add_or_update_game(
     current_user.gamelist[game_id] = rating
     update_user_gameslist(current_user)
     return current_user.gamelist
+
+
+# -----------------------
+# DELETE A GAME IN USER'S GAMESLIST
+# -----------------------
+@router.delete("/GamesList/{game_id}", response_model=dict)
+async def delete_game( 
+    game_id: int,
+    current_user: UserDB = Depends(get_current_user)
+):
+    if game_id in current_user.gamelist:
+        del current_user.gamelist[game_id]
+        update_user_gameslist(current_user)
+    return current_user.gamelist
