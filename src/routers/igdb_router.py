@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import OAuth2PasswordRequestForm
-from src.models.game import Game,get_game_from_igdb, get_X_games, search_game, get_name_from_attribute_id, get_cover_url
+from src.models.game import Game, get_game_from_igdb, get_X_games, search_game, get_name_from_attribute_id, get_cover_url
 
 router = APIRouter(prefix="", tags=["igdb"])
 
