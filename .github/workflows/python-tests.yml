@@ -35,5 +35,4 @@ jobs:
       # 4️⃣ Lancer les tests
       - name: Run tests with pytest
         run: |
-          cd api
           pytest --cov=src --cov-report=term-missing -v
