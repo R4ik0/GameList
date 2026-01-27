@@ -2,7 +2,7 @@ from fastapi import HTTPException, Depends
 
 
 
-from src.models.token import decode_access_token
+from src.models.tokens import decode_access_token
 from src.models.user import oauth2_scheme, UserDB, get_user
 
 

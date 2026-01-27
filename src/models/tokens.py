@@ -5,7 +5,7 @@ from jose import jwt, JWTError
 from fastapi import HTTPException
 
 from config import *
-from src.models.token import *
+from src.models.tokens import *
 
 
 

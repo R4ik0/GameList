@@ -8,7 +8,7 @@ import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../", "")))
 
-from src.models.token import (
+from src.models.tokens import (
     create_access_token,
     create_refresh_token,
     decode_access_token,
@@ -77,7 +77,7 @@ def test_decode_access_token_raises_if_no_sub():
 def test_decode_access_token_raises_on_expired_token():
     data = {"sub": "frank"}
     # On force l'expiration dans le passé
-    with patch("src.models.token.datetime") as mock_datetime:
+    with patch("src.models.tokens.datetime") as mock_datetime:
         mock_datetime.utcnow.return_value = datetime(2000, 1, 1)
         token = create_access_token(data, expiration_delta=timedelta(minutes=1))
     with pytest.raises(HTTPException):

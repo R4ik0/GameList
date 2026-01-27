@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends, Form
 from fastapi.security import OAuth2PasswordRequestForm
 
-from src.models.token import Token, RefreshRequest, create_access_token, create_refresh_token, decode_token
+from src.models.tokens import Token, RefreshRequest, create_access_token, create_refresh_token, decode_token
 from src.models.user import UserDB, authenticate_user, create_user
 from dependencies import get_current_user
 
