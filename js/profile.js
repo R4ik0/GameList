@@ -1,28 +1,30 @@
-loadMyGames();
+async function loadProfile() {
+  const user = await api("/me");
+  document.getElementById("username").innerText = user.username.charAt(0).toUpperCase() + user.username.slice(1);
 
-async function loadMyGames() {
-  const games = await api("/my-games");
-  const div = document.getElementById("my-games");
-  div.innerHTML = "";
+  const games = await api("/GamesList");
+  const list = document.getElementById("user-games");
+  list.innerHTML = "";
 
-  games.forEach(g => {
-    div.innerHTML += `
-      <div class="card">
-        <h3>${g.name}</h3>
-        <input type="number" min="1" max="10"
-               value="${g.rating}"
-               onchange="rateGame(${g.id}, this.value)">
-      </div>
-    `;
-  });
+  for (const [gameId, rating] of Object.entries(games)) {
+    const game = await api(`/get_game?id=${gameId}`, null, "POST");
+
+    const li = document.createElement("li");
+
+    const a = document.createElement("a");
+    a.href = `game?id=${gameId}`;
+    a.innerText = game.name;
+
+    const span = document.createElement("span");
+    span.innerText = ` - Rating: ${rating}`;
+
+    li.appendChild(a);
+    li.appendChild(span);
+    list.appendChild(li);
+  }
 }
 
-async function rateGame(gameId, rating) {
-  await api("/rate", {
-    game_id: gameId,
-    rating: rating
-  });
-}
+loadProfile();
 
 if (!localStorage.getItem("access_token")) {
     window.location.href = "/GameList/";

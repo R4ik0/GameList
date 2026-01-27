@@ -3,6 +3,7 @@ body {
   font-family: Arial, sans-serif;
   background-color: #0b1622;
   color: #e5e7eb;
+  font-family: sans-serif;
 }
 
 .login-box {
@@ -40,8 +41,81 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  z-index: 1000;
 }
 
+.search-box {
+  position: relative;
+}
+
+.search-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  fill: #a0b1c5;
+  pointer-events: none;
+}
+
+#search-input {
+  margin: 0;
+  padding: 12px 450px 12px 46px;
+  border-radius: 6px;
+  background: #0b1622;
+  color: #a0b1c5;
+  font-size: 16px;
+}
+
+#search-input:focus-visible {
+  outline: none;
+  border-color: none;
+}
+
+.search-results {
+  position: absolute;
+  top: 100px;
+  left: 100px;
+  width: 480px;
+  background: #151f2e;
+  border-radius: 6px;
+  z-index: 1000;
+  display: none;
+  color: #a0b1c5;
+}
+
+#search-overlay {
+  position: fixed;
+  top: 68px; /* hauteur du header */
+  left: 0;
+  width: 100%;
+  height: calc(100% - 68px);
+  background: rgba(18,22,28,.7);
+  z-index: 500;
+  display: none;
+}
+
+.search-results div {
+  padding: 18px;
+  cursor: pointer;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.search-results div:hover {
+  background: #3db4f2;
+  color: #d3d5f3;
+}
+
+.search-results div:hover:first-child {
+  border-radius: 6px 6px 0 0;
+}
+
+.search-results div:hover:last-child {
+  border-radius: 0 0 6px 6px;
+}
 
 .nav-links a {
   padding: 10px 15px;
@@ -94,4 +168,47 @@ button {
   background: #3db4f2;
   color: white;
   cursor: pointer;
+}
+
+/* Overlay pop-up */
+.popup {
+  display: none;
+  position: fixed;
+  z-index: 2000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+}
+
+.popup-content {
+  background: #1c1c1c;
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+  margin: 100px auto;
+  position: relative;
+}
+
+.close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.button.red {
+  background: #d33;
+  color: white;
+}
+
+#game-cover {
+    display: block;
+    max-width: 300px;
+    width: 100%;
+    margin: 10px 0;
+    border-radius: 8px;
 }
