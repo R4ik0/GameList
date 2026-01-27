@@ -12,6 +12,7 @@ app.add_middleware(
         "http://localhost:5500",      # live-server
         "http://127.0.0.1:5500",
         "https://r4ik0.github.io",    # GitHub Pages
+        "https://r4ik0.github.io/GameList",
     ],
     allow_credentials=True,
     allow_methods=["*"],
