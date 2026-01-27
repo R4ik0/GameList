@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8000";
+const API_URL = "https://game-list-murex.vercel.app";
 
 async function login() {
   const username = document.getElementById("username").value;
