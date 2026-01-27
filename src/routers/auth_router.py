@@ -72,6 +72,7 @@ async def protected(current_user: UserDB = Depends(get_current_user)):
 @router.post("/refresh", response_model=Token)
 async def refresh_token(request: RefreshRequest):
     payload = decode_token(request.refresh_token)
+
     if not payload or payload.get("type") != "refresh":
         raise HTTPException(status_code=401, detail="Invalid refresh token")
 
