@@ -6,11 +6,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="GameList API", version="1.0.0")
 
-
-app.include_router(auth_router.router)
-app.include_router(igdb_router.router)
-app.include_router(user_router.router)
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -22,6 +17,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(auth_router.router)
+app.include_router(igdb_router.router)
+app.include_router(user_router.router)
 
 @app.get("/")
 async def root():

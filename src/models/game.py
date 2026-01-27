@@ -3,8 +3,7 @@ from dotenv import load_dotenv
 import random as rd
 import requests
 import os
-
-from pprint import pprint
+from typing import List, Optional
 
 
 load_dotenv()
@@ -17,61 +16,73 @@ ACCESS_TOKEN = os.environ["ACCESS_TOKEN"]
 class Game(BaseModel):
     id: int
     name: str
-    genres: list
-    themes: list
-    game_modes: list
-    platforms: list
-    storyline: str
+    genres: Optional[List[int|str]] = None
+    themes: Optional[List[int|str]] = None
+    game_modes: Optional[List[int|str]] = None
+    platforms: Optional[List[int|str]] = None
+    storyline: Optional[str] = None
 
 
 
 def get_game_from_igdb(game_id):
     url = "https://api.igdb.com/v4/games"
-    
     headers = {
         "Client-ID": CLIENT_ID,
         "Authorization": f"Bearer {ACCESS_TOKEN}",
         "Content-Type": "text/plain"
     }
-    
     body = f"fields *; where id = {game_id};"
-
     response = requests.post(url, headers=headers, data=body)
-
     response.raise_for_status()
-
     response = response.json()[0]
-
     game = Game(
         id = game_id,
-        name = response['name'],
-        genres = response['genres'],
-        themes = response['themes'],
-        game_modes = response['game_modes'],
-        platforms = response['platforms'],
-        storyline = response['storyline']
+        name=response.get("name"),
+        genres=response.get("genres"),
+        themes=response.get("themes"),
+        game_modes=response.get("game_modes"),
+        platforms=response.get("platforms"),
+        storyline=response.get("storyline")
     )
     return game
 
-pprint(get_game_from_igdb(2003).model_dump())
-
-
-def get_X_games(X):
-
-    url = "https://api.igdb.com/v4/games/"
-
+def get_name_from_attribute_id(attribute, attribute_id):
+    url = f"https://api.igdb.com/v4/{attribute}/"
     headers = {
         "Client-ID": CLIENT_ID,
         "Authorization": f"Bearer {ACCESS_TOKEN}",
         "Content-Type": "text/plain"
     }
-
-    body = f"fields name, id; limit {X}; offset {rd.randint(0,10000)};"
-
+    body = f"fields name; where id = {attribute_id};"
     response = requests.post(url, headers=headers, data=body)
-
     response.raise_for_status()
+    name = response.json()[0]['name']
+    return name
 
+
+def get_X_games(X):
+    url = "https://api.igdb.com/v4/games/"
+    headers = {
+        "Client-ID": CLIENT_ID,
+        "Authorization": f"Bearer {ACCESS_TOKEN}",
+        "Content-Type": "text/plain"
+    }
+    body = f"fields id; limit {X}; offset {rd.randint(0,10000)};"
+    response = requests.post(url, headers=headers, data=body)
+    response.raise_for_status()
     response = response.json()
+    return response
 
+
+def search_game(name):
+    url = "https://api.igdb.com/v4/games"
+    headers = {
+        "Client-ID": CLIENT_ID,
+        "Authorization": f"Bearer {ACCESS_TOKEN}",
+        "Content-Type": "text/plain"
+    }
+    body = f"fields id, name, game_type; search \"{name}\"; where game_type=(0,8,9);"
+    response = requests.post(url, headers=headers, data=body)
+    response.raise_for_status()
+    response = response.json()
     return response
