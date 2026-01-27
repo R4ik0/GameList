@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import random as rd
 import requests
 import os
+from typing import List, Optional
 
 from pprint import pprint
 
@@ -17,11 +18,11 @@ ACCESS_TOKEN = os.environ["ACCESS_TOKEN"]
 class Game(BaseModel):
     id: int
     name: str
-    genres: list
-    themes: list
-    game_modes: list
-    platforms: list
-    storyline: str
+    genres: Optional[List[int]] = None
+    themes: Optional[List[int]] = None
+    game_modes: Optional[List[int]] = None
+    platforms: Optional[List[int]] = None
+    storyline: Optional[str] = None
 
 
 
@@ -44,12 +45,12 @@ def get_game_from_igdb(game_id):
 
     game = Game(
         id = game_id,
-        name = response['name'],
-        genres = response['genres'],
-        themes = response['themes'],
-        game_modes = response['game_modes'],
-        platforms = response['platforms'],
-        storyline = response['storyline']
+        name=response.get("name"),
+        genres=response.get("genres"),
+        themes=response.get("themes"),
+        game_modes=response.get("game_modes"),
+        platforms=response.get("platforms"),
+        storyline=response.get("storyline")
     )
     return game
 
