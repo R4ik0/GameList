@@ -12,7 +12,7 @@ ACCESS_TOKEN = os.environ["ACCESS_TOKEN"]
 
 
 # Do we add those ? 
-# language_supports: list, developers: not sure how to access, player_perspectives: list, keywords: list, cover: int idk how to print it on the front
+# language_supports: list, developers: not sure how to access, player_perspectives: list, keywords: list
 class Game(BaseModel):
     id: int
     name: str
@@ -21,6 +21,7 @@ class Game(BaseModel):
     game_modes: Optional[List[int|str]] = None
     platforms: Optional[List[int|str]] = None
     storyline: Optional[str] = None
+    cover: Optional[str] = None
 
 
 
@@ -42,9 +43,11 @@ def get_game_from_igdb(game_id):
         themes=response.get("themes"),
         game_modes=response.get("game_modes"),
         platforms=response.get("platforms"),
-        storyline=response.get("storyline")
+        storyline=response.get("storyline"),
+        cover = None
     )
     return game
+
 
 def get_name_from_attribute_id(attribute, attribute_id):
     url = f"https://api.igdb.com/v4/{attribute}/"
@@ -85,4 +88,18 @@ def search_game(name):
     response = requests.post(url, headers=headers, data=body)
     response.raise_for_status()
     response = response.json()
+    return response
+
+
+def get_cover_url(game_id):
+    url = "https://api.igdb.com/v4/covers"
+    headers = {
+        "Client-ID": CLIENT_ID,
+        "Authorization": f"Bearer {ACCESS_TOKEN}",
+        "Content-Type": "text/plain"
+    }
+    body = f"fields url; where game = {game_id};"
+    response = requests.post(url, headers=headers, data=body)
+    response.raise_for_status()
+    response = response.json()[0]['url'][2::]
     return response
