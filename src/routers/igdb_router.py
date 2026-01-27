@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import OAuth2PasswordRequestForm
-from src.models.game import Game,get_game_from_igdb, get_X_games, search_game, get_name_from_attribute_id
+from src.models.game import Game,get_game_from_igdb, get_X_games, search_game, get_name_from_attribute_id, get_cover_url
 
 router = APIRouter(prefix="", tags=["igdb"])
 
@@ -37,4 +37,5 @@ async def get_full_game(id: int):
         game_modes.append(get_name_from_attribute_id('game_modes', i))
     for i in game.platforms:
         platforms.append(get_name_from_attribute_id('platforms', i))
-    return Game(id =game.id,name = game.name,genres = genres,themes = themes,game_modes = game_modes,platforms = platforms,storyline = game.storyline)
+    cover = get_cover_url(id)
+    return Game(id =game.id,name = game.name,genres = genres,themes = themes,game_modes = game_modes,platforms = platforms,storyline = game.storyline, cover = cover)
