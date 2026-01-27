@@ -2,9 +2,9 @@ name: Secrets
 
 on:
   push:
-    branches: [ dev, Thibault ]
+    branches: [ back, Thibault ]
   pull_request:
-    branches: [ dev, Thibault ]
+    branches: [ back, Thibault ]
 
 jobs:
   test:
