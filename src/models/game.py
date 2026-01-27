@@ -77,20 +77,6 @@ def get_X_games(X):
     return response
 
 
-def search_game(name):
-    url = "https://api.igdb.com/v4/games"
-    headers = {
-        "Client-ID": CLIENT_ID,
-        "Authorization": f"Bearer {ACCESS_TOKEN}",
-        "Content-Type": "text/plain"
-    }
-    body = f"fields id, name, game_type; search \"{name}\"; where game_type=(0,8,9);"
-    response = requests.post(url, headers=headers, data=body)
-    response.raise_for_status()
-    response = response.json()
-    return response
-
-
 def get_cover_url(game_id):
     url = "https://api.igdb.com/v4/covers"
     headers = {
@@ -103,3 +89,20 @@ def get_cover_url(game_id):
     response.raise_for_status()
     response = response.json()[0]['image_id']
     return response
+
+
+def search_game(name):
+    url = "https://api.igdb.com/v4/games"
+    headers = {
+        "Client-ID": CLIENT_ID,
+        "Authorization": f"Bearer {ACCESS_TOKEN}",
+        "Content-Type": "text/plain"
+    }
+    body = f"fields id, name, game_type; search \"{name}\"; where game_type=(0,8,9);"
+    response = requests.post(url, headers=headers, data=body)
+    response.raise_for_status()
+    result = response.json()
+    for i in range(len(response.json())):
+        image = get_cover_url(response.json()[i]['id'])
+        result[i]['image'] = image
+    return result
