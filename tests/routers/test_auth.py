@@ -1,5 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
+from fastapi import FastAPI
 from unittest.mock import patch
 from unittest.mock import AsyncMock
 
@@ -10,7 +11,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../.
 
 from src.routers.auth_router import router
 from src.models.user import UserDB
-from fastapi import FastAPI
+from dependencies import get_current_user
 
 # Créer une app FastAPI temporaire pour tester le router
 app = FastAPI()
@@ -103,18 +104,23 @@ def test_signin_fail_existing_user(mock_create_user):
 # ----------------------------
 # PROTECTED ROUTE
 # ----------------------------
-@patch("src.routers.auth_router.get_current_user", new_callable=AsyncMock)
-def test_protected_route(mock_current_user):
-    mock_current_user.return_value = UserDB(
-        id=1,
-        username="alice",
-        password="hashed",
-        gamelist={},
-        role="user"
-    )
+def test_protected_route():
+    async def override_get_current_user():
+        return UserDB(
+            id=1,
+            username="alice",
+            password="hashed",
+            gamelist={},
+            role="user"
+        )
+
+    app.dependency_overrides[get_current_user] = override_get_current_user
+
     response = client.get("/protected")
     assert response.status_code == 200
     assert response.json()["message"] == "Hello alice, this is protected"
+
+    app.dependency_overrides.clear()
 
 
 # ----------------------------
@@ -143,7 +149,7 @@ def test_refresh_token_fail_invalid(mock_decode):
     mock_decode.return_value = {}
     response = client.post(
         "/refresh",
-        data={"refresh_token": "badtoken"}  # ⚠️ utilise data pour Form
+        json={"refresh_token": "badtoken"}
     )
     assert response.status_code == 401
     assert response.json()["detail"] == "Invalid refresh token"
@@ -154,7 +160,7 @@ def test_refresh_token_fail_no_sub(mock_decode):
     mock_decode.return_value = {"type": "refresh"}
     response = client.post(
         "/refresh",
-        data={"refresh_token": "token123"}  # ⚠️ utilise data pour Form
+        json={"refresh_token": "token123"}
     )
     assert response.status_code == 401
     assert response.json()["detail"] == "Invalid token payload"
