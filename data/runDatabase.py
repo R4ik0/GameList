@@ -18,6 +18,6 @@ CREATE TABLE IF NOT EXISTS user (
 conn.commit()
 
 
-df = pd.read_sql_query("SELECT * FROM user", conn)
-print(df)
+# df = pd.read_sql_query("SELECT * FROM user", conn)
+# print(df)
 conn.close()
