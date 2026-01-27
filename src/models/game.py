@@ -57,21 +57,28 @@ pprint(get_game_from_igdb(2003).model_dump())
 
 
 def get_X_games(X):
-
     url = "https://api.igdb.com/v4/games/"
-
     headers = {
         "Client-ID": CLIENT_ID,
         "Authorization": f"Bearer {ACCESS_TOKEN}",
         "Content-Type": "text/plain"
     }
-
-    body = f"fields name, id; limit {X}; offset {rd.randint(0,10000)};"
-
+    body = f"fields id; limit {X}; offset {rd.randint(0,10000)};"
     response = requests.post(url, headers=headers, data=body)
-
     response.raise_for_status()
-
     response = response.json()
+    return response
 
+
+def search_game(name):
+    url = "https://api.igdb.com/v4/games"
+    headers = {
+        "Client-ID": CLIENT_ID,
+        "Authorization": f"Bearer {ACCESS_TOKEN}",
+        "Content-Type": "text/plain"
+    }
+    body = f"fields id, name, game_type; search \"{name}\"; where game_type=(0,8,9);"
+    response = requests.post(url, headers=headers, data=body)
+    response.raise_for_status()
+    response = response.json()
     return response
