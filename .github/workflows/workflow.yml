@@ -1,10 +1,6 @@
 name: Secrets
 
-on:
-  push:
-    branches: [ back, Thibault ]
-  pull_request:
-    branches: [ back, Thibault ]
+on: [push]
 
 jobs:
   test:
