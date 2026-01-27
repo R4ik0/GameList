@@ -98,8 +98,8 @@ def get_cover_url(game_id):
         "Authorization": f"Bearer {ACCESS_TOKEN}",
         "Content-Type": "text/plain"
     }
-    body = f"fields url; where game = {game_id};"
+    body = f"fields image_id; where game = {game_id};"
     response = requests.post(url, headers=headers, data=body)
     response.raise_for_status()
-    response = response.json()[0]['url'][2::]
+    response = response.json()[0]['image_id']
     return response
