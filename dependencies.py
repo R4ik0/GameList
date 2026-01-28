@@ -2,8 +2,8 @@ from fastapi import HTTPException, Depends
 
 
 
-from src.models.token import decode_access_token
-from src.models.user import oauth2_scheme, UserDB, get_user
+from src.models.tokens import decode_access_token
+from src.models.user import oauth2_scheme, get_user
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
@@ -23,8 +23,8 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 
 
 def require_roles(*roles):
-    async def dep(current_user: UserDB = Depends(get_current_user)):
-        if current_user.role not in roles:
+    async def dep(current_user = Depends(get_current_user)):
+        if current_user["role"] not in roles:
             raise HTTPException(status_code=403, detail="Forbidden")
         return current_user
     return dep

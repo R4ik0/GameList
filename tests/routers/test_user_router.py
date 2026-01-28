@@ -7,7 +7,6 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../", "")))
 
 from main import app
-from src.models.user import UserDB
 from dependencies import get_current_user
 
 client = TestClient(app)
@@ -17,13 +16,13 @@ client = TestClient(app)
 # MOCK USER
 # -----------------------
 def mock_user():
-    return UserDB(
-        id=1,
-        username="alice",
-        password="hashed",
-        gamelist={1: 4.5, 2: 3.0},
-        role="user"
-    )
+    return {
+        "id": 1,
+        "username": "alice",
+        "password": "hashed",
+        "gamelist": {1: 4.5, 2: 3.0},
+        "role": "user"
+    }
 
 
 # -----------------------
