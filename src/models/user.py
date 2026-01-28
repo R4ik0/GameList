@@ -11,25 +11,16 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 data_path = "data/"
 
-
-class UserDB(BaseModel):
-    id: int
-    username: str
-    gamelist: Dict[str, float]
-    role: str
-
-
 def get_user(username: str) -> Optional[dict]:
     res = (
         supabase
         .table("users")
         .select("*")
         .eq("username", username)
-        .single()
+        .maybe_single()
         .execute()
     )
-
-    return res.data if res.data else None
+    return res.data if res else None
 
 
 
@@ -65,10 +56,10 @@ def get_user_gameslist(username: str) -> Optional[Dict]:
     return user["gamelist"] if user else None
 
 
-def update_user_gameslist(username: str, gamelist: Dict) -> None:
+def update_user_gameslist(user: dict) -> None:
     supabase.table("users") \
-        .update({"gamelist": gamelist}) \
-        .eq("username", username) \
+        .update({"gamelist": user["gamelist"]}) \
+        .eq("username", user["username"]) \
         .execute()
 
 

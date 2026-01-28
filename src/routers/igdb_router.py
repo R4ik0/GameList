@@ -1,7 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from src.models.game import Game, get_game_from_igdb, get_X_games, search_game, get_name_from_attribute_id, get_cover_url, get_similar_games
-from src.models.user import UserDB
 from dependencies import get_current_user
 
 router = APIRouter(prefix="", tags=["igdb"])
@@ -45,13 +44,13 @@ async def get_full_game(id: int):
 
 
 @router.post("/similar_games")
-async def similar_games(current_user: UserDB = Depends(get_current_user)):
+async def similar_games(current_user = Depends(get_current_user)):
     all_similar_games = []
-    for game_id in current_user.gamelist:
+    for game_id in current_user["gamelist"]:
         similar_games = get_similar_games(game_id)
         for game in similar_games:
             if game not in all_similar_games:
-                if game not in current_user.gamelist:
+                if game not in current_user["gamelist"]:
                     all_similar_games.append(game)
     return all_similar_games
 

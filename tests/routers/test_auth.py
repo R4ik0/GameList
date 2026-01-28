@@ -10,7 +10,6 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../", "")))
 
 from src.routers.auth_router import router
-from src.models.user import UserDB
 from dependencies import get_current_user
 
 # Créer une app FastAPI temporaire pour tester le router
@@ -27,13 +26,13 @@ client = TestClient(app)
 @patch("src.routers.auth_router.create_access_token")
 @patch("src.routers.auth_router.create_refresh_token")
 def test_login_success(mock_refresh, mock_access, mock_auth):
-    mock_auth.return_value = UserDB(
-        id=1,
-        username="alice",
-        password="hashed",
-        gamelist={},
-        role="user"
-    )
+    mock_auth.return_value = {
+        "id": 1,
+        "username": "alice",
+        "password": "hashed",
+        "gamelist": {},
+        "role": "user"
+    }
     mock_access.return_value = "access123"
     mock_refresh.return_value = "refresh123"
 
@@ -68,13 +67,13 @@ def test_login_fail_invalid_credentials(mock_auth):
 @patch("src.routers.auth_router.create_access_token")
 @patch("src.routers.auth_router.create_refresh_token")
 def test_signin_success(mock_refresh, mock_access, mock_create_user):
-    mock_create_user.return_value = UserDB(
-        id=2,
-        username="charlie",
-        password="hashed",
-        gamelist={},
-        role="user"
-    )
+    mock_create_user.return_value = {
+        "id": 2,
+        "username": "charlie",
+        "password": "hashed",
+        "gamelist": {},
+        "role": "user"
+    }
     mock_access.return_value = "access123"
     mock_refresh.return_value = "refresh123"
 
@@ -106,13 +105,13 @@ def test_signin_fail_existing_user(mock_create_user):
 # ----------------------------
 def test_protected_route():
     async def override_get_current_user():
-        return UserDB(
-            id=1,
-            username="alice",
-            password="hashed",
-            gamelist={},
-            role="user"
-        )
+        return {
+            "id": 1,
+            "username": "alice",
+            "password": "hashed",
+            "gamelist": {},
+            "role": "user"
+        }
 
     app.dependency_overrides[get_current_user] = override_get_current_user
 

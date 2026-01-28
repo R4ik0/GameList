@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends, Form
 from fastapi.security import OAuth2PasswordRequestForm
 
 from src.models.tokens import Token, RefreshRequest, create_access_token, create_refresh_token, decode_token
-from src.models.user import UserDB, authenticate_user, create_user
+from src.models.user import authenticate_user, create_user
 from dependencies import get_current_user
 
 
@@ -17,13 +17,13 @@ router = APIRouter(prefix="", tags=["auth"])
 @router.post("/login", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     # Vérifie l'utilisateur dans la base
-    user: UserDB = authenticate_user(form_data.username, form_data.password)
+    user = authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(status_code=401, detail="Incorrect credentials")
 
     # Crée access + refresh token
-    access_token = create_access_token(data={"sub": user.username})
-    refresh_token = create_refresh_token(data={"sub": user.username})
+    access_token = create_access_token(data={"sub": user["username"]})
+    refresh_token = create_refresh_token(data={"sub": user["username"]})
     return Token(access_token=access_token, refresh_token=refresh_token)
 #curl -X POST "http://localhost:8000/login"   -H "Content-Type: application/x-www-form-urlencoded"   -d "username=admin"   -d "password=adminpass"
 
@@ -62,8 +62,8 @@ async def signin(form_data: OAuth2PasswordRequestForm = Depends(), role: str = F
 # ROUTE PROTÉGÉE
 # -----------------------
 @router.get("/protected")
-async def protected(current_user: UserDB = Depends(get_current_user)):
-    return {"message": f"Hello {current_user.username}, this is protected"}
+async def protected(current_user = Depends(get_current_user)):
+    return {"message": f"Hello {current_user['username']}, this is protected"}
 
 
 # -----------------------
