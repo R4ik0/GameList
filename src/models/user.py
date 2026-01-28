@@ -2,9 +2,9 @@ from typing import Optional, Dict
 from pydantic import BaseModel
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
-from pydantic import Field
-import json
-import sqlite3
+from typing import Optional, Dict
+from passlib.context import CryptContext
+from data.database import supabase
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
@@ -13,122 +13,72 @@ data_path = "data/"
 
 
 class UserDB(BaseModel):
-    id : int
+    id: int
     username: str
-    password: str
-    gamelist: Dict[int, float] = Field(default_factory=dict)
+    gamelist: Dict[str, float]
     role: str
 
 
-def get_user(username: str) -> Optional[UserDB]:
-    conn = sqlite3.connect(data_path +"users.db")
-    cursor = conn.cursor()
-
-    cursor.execute("""
-    SELECT id, username, password, gamelist, role
-    FROM user
-    WHERE username = ?
-    """, (username, ))
-
-    row = cursor.fetchone()
-    print(row)
-    conn.close()
-    if row:
-        id, username, password, data_json, role = row
-        data = json.loads(data_json)
-        return UserDB(
-            id = id, 
-            username = username,
-            password = password, 
-            gamelist = {int(k): v for k, v in data.items()}, 
-            role = role
-        )
-    return None
-
-
-def create_user(username: str, password: str, role: str = "user") -> Optional[UserDB]:
-    conn = sqlite3.connect(data_path + "users.db")
-    cursor = conn.cursor()
-
-
-    cursor.execute(
-        "SELECT id FROM user WHERE username = ?",
-        (username,)
+def get_user(username: str) -> Optional[dict]:
+    res = (
+        supabase
+        .table("users")
+        .select("*")
+        .eq("username", username)
+        .single()
+        .execute()
     )
-    if cursor.fetchone():
-        conn.close()
+
+    return res.data if res.data else None
+
+
+
+def create_user(username: str, password: str, role: str = "user") -> Optional[dict]:
+    # Vérifier existence
+    existing = (
+        supabase
+        .table("users")
+        .select("id")
+        .eq("username", username)
+        .execute()
+    )
+
+    if existing.data:
         print(f"❌ L'utilisateur '{username}' existe déjà")
         return None
 
-
-    cursor.execute("SELECT MAX(id) FROM user")
-    max_id = cursor.fetchone()[0]
-    new_id = 1 if max_id is None else max_id + 1
-
-
     hashed = pwd_context.hash(password)
-    user = UserDB(
-        id=new_id,
-        username=username,
-        password=hashed,
-        role=role
-    )
+
+    user = {
+        "username": username,
+        "password": hashed,
+        "role": role,
+        "gamelist": {}
+    }
+
+    res = supabase.table("users").insert(user).execute()
+    return res.data[0] if res.data else None
 
 
-    cursor.execute("""
-    INSERT INTO user (id, username, password, gamelist, role)
-    VALUES (?, ?, ?, ?, ?)
-    """, (
-        user.id,
-        user.username,
-        user.password,
-        json.dumps(user.gamelist),
-        user.role
-    ))
-
-    conn.commit()
-    conn.close()
-
-    return user
-
-def get_user_gameslist(username: str) -> Optional[Dict[int, float]]:
+def get_user_gameslist(username: str) -> Optional[Dict]:
     user = get_user(username)
-    if user:
-        return user.gamelist
-    return None
+    return user["gamelist"] if user else None
 
-def update_user_gameslist(user: UserDB) -> None:
-    conn = sqlite3.connect(data_path +"users.db")
-    cursor = conn.cursor()
 
-    cursor.execute("""
-    UPDATE user
-    SET gamelist = ?
-    WHERE id = ?
-    """, (
-        json.dumps(user.gamelist),
-        user.id
-    ))
-
-    conn.commit()
-    conn.close()
+def update_user_gameslist(username: str, gamelist: Dict) -> None:
+    supabase.table("users") \
+        .update({"gamelist": gamelist}) \
+        .eq("username", username) \
+        .execute()
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
-
-
-def authenticate_user(username: str, password: str) -> Optional[UserDB]:
+def authenticate_user(username: str, password: str) -> Optional[dict]:
     user = get_user(username)
     if not user:
         return None
-    if not verify_password(password, user.password):
+    if not verify_password(password, user["password"]):
         return None
     return user
-
-create_user("admin", "adminpass", role="admin")
-admin = get_user("admin")
-admin.gamelist = {2003:8,1942:2}
-update_user_gameslist(admin)
-create_user("user", "userpass", role="user")
