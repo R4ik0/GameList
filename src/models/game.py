@@ -97,7 +97,7 @@ def search_game(name):
         "Authorization": f"Bearer {ACCESS_TOKEN}",
         "Content-Type": "text/plain"
     }
-    body = f"fields id, name, game_type; search \"{name}\"; where game_type=(0,8,9);"
+    body = f"fields id, name, game_type; search \"{name}\"; where game_type=(0,1,4,8,9);"
     response = requests.post(url, headers=headers, data=body)
     response.raise_for_status()
     result = response.json()

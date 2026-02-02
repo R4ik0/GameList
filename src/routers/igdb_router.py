@@ -40,7 +40,7 @@ async def get_full_game(id: int):
     for i in game.platforms:
         platforms.append(get_name_from_attribute_id('platforms', i))
     cover = get_cover_url(id)
-    return Game(id =game.id,name = game.name,genres = genres,themes = themes,game_modes = game_modes,platforms = platforms,storyline = game.storyline, cover = cover)
+    return Game(id = game.id, name = game.name, genres = genres, themes = themes, game_modes = game_modes, platforms = platforms, storyline = game.storyline, cover = cover)
 
 
 
