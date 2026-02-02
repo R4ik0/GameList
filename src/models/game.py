@@ -38,10 +38,10 @@ def get_game_from_igdb(game_id):
     game = Game(
         id = game_id,
         name=response.get("name"),
-        genres=response.get("genres"),
-        themes=response.get("themes"),
-        game_modes=response.get("game_modes"),
-        platforms=response.get("platforms"),
+        genres=response.get("genres",[]),
+        themes=response.get("themes",[]),
+        game_modes=response.get("game_modes",[]),
+        platforms=response.get("platforms",[]),
         storyline=response.get("storyline"),
         cover = None
     )
