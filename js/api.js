@@ -24,19 +24,33 @@ async function api(path, data = null, method = "GET") {
 async function refreshToken() {
   const refreshToken = localStorage.getItem("refresh_token");
 
+  if (!refreshToken) {
+    window.location.href = "/GameList/";
+    return false;
+  }
+
   const res = await fetch(API_URL + "/refresh", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(refreshToken)
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      refresh_token: refreshToken
+    })
   });
 
   if (!res.ok) {
-    logout();
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    window.location.href = "/GameList/";
     return false;
   }
 
   const data = await res.json();
+
   localStorage.setItem("access_token", data.access_token);
   localStorage.setItem("refresh_token", data.refresh_token);
+
   return true;
 }
+
