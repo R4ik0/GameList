@@ -119,3 +119,17 @@ def get_similar_games(id):
     response.raise_for_status()
     result = response.json()[0]['similar_games']
     return result
+
+
+def get_rating(id):
+    url = "https://api.igdb.com/v4/games"
+    headers = {
+        "Client-ID": CLIENT_ID,
+        "Authorization": f"Bearer {ACCESS_TOKEN}",
+        "Content-Type": "text/plain"
+    }
+    body = f"fields rating; where id = {id};"
+    response = requests.post(url, headers=headers, data=body)
+    response.raise_for_status()
+    result = response.json()[0]['rating']
+    return result
