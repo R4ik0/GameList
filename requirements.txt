@@ -9,4 +9,3 @@ python-jose
 python-dotenv
 uvicorn[standard]
 supabase
-operator
