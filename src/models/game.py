@@ -58,8 +58,8 @@ def get_name_from_attribute_id(attribute, attribute_id):
     body = f"fields name; where id = {attribute_id};"
     response = requests.post(url, headers=headers, data=body)
     response.raise_for_status()
-    name = response.json()[0]['name']
-    return name
+    name = response.json()[0]
+    return name.get("name")
 
 
 def get_X_games(X):
@@ -86,8 +86,8 @@ def get_cover_url(game_id):
     body = f"fields image_id; where game = {game_id};"
     response = requests.post(url, headers=headers, data=body)
     response.raise_for_status()
-    response = response.json()[0]['image_id']
-    return response
+    response = response.json()[0]
+    return response.get("image_id")
 
 
 def search_game(name):
@@ -117,8 +117,8 @@ def get_similar_games(id):
     body = f"fields similar_games; where id = {id};"
     response = requests.post(url, headers=headers, data=body)
     response.raise_for_status()
-    result = response.json()[0]['similar_games']
-    return result
+    result = response.json()[0]
+    return result.get("similar_games",[])
 
 
 def get_rating(id):
