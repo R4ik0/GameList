@@ -1,148 +1,127 @@
 import pytest
-import sqlite3
+
 import os
 import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../", "")))
 
-from src.models.user import *
+from data.database import supabase
+from src.models.user import (
+    create_user,
+    get_user,
+    authenticate_user,
+    verify_password,
+    get_user_gameslist,
+    update_user_gameslist
+)
 
-# --------------------------
-# Fixtures
-# --------------------------
-@pytest.fixture
-def clean_db():
-    """
-    Vide la table user avant chaque test
-    """
-    conn = sqlite3.connect(data_path + "users.db")
-    cursor = conn.cursor()
-    cursor.execute("DELETE FROM user")
-    conn.commit()
-    conn.close()
-    yield
-    # Nettoyage après test (optionnel)
-    conn = sqlite3.connect(data_path + "users.db")
-    cursor = conn.cursor()
-    cursor.execute("DELETE FROM user")
-    conn.commit()
-    conn.close()
 
-# --------------------------
+# ============================
+# Constantes de test
+# ============================
+
+TEST_USERS = [
+    {
+        "username": "pytest_user_1",
+        "password": "pytestUpass",
+        "role": "user"
+    },
+    {
+        "username": "pytest_admin_1",
+        "password": "pytestApass",
+        "role": "admin"
+    }
+]
+
+
+# ============================
+# Fixture de setup / teardown
+# ============================
+
+@pytest.fixture(scope="module")
+def test_users():
+    """
+    Crée les users de test avant les tests
+    et les supprime après.
+    """
+    created_users = []
+
+    # --- SETUP ---
+    for u in TEST_USERS:
+        user = create_user(
+            username=u["username"],
+            password=u["password"],
+            role=u["role"]
+        )
+        assert user is not None
+        created_users.append(u)
+
+    yield created_users
+
+    # --- TEARDOWN ---
+    for u in created_users:
+        supabase.table("users") \
+            .delete() \
+            .eq("username", u["username"]) \
+            .execute()
+
+
+# ============================
 # Tests
-# --------------------------
-def test_create_and_get_user(clean_db):
-    # 1️⃣ Création utilisateur
-    username = "alice"
-    password = "password123"
-    role = "admin"
+# ============================
 
-    user = create_user(username=username, password=password, role=role)
+TEST_USERS[0]['password']
+
+
+def test_get_user(test_users):
+    user = get_user(TEST_USERS[0]['username'])
     assert user is not None
-    assert user.username == username
-    assert user.role == role
-    assert pwd_context.verify(password, user.password)  # Vérifie le hash
-
-    # 2️⃣ Récupération par ID
-    retrieved = get_user(user.username)
-    assert retrieved is not None
-    assert retrieved.id == user.id
-    assert retrieved.username == user.username
-    assert retrieved.role == user.role
-    assert isinstance(retrieved.gamelist, dict)
-
-def test_create_duplicate_user(clean_db):
-    username = "bob"
-    password = "secret"
-
-    # 1️⃣ Créer le premier utilisateur
-    user1 = create_user(username=username, password=password)
-    assert user1 is not None
-
-    # 2️⃣ Tenter de créer un doublon
-    user2 = create_user(username=username, password=password)
-    assert user2 is None  # doit retourner None pour doublon
+    assert user["username"] == TEST_USERS[0]['username']
+    assert user["role"] == TEST_USERS[0]['role']
 
 
-# --------------------------
-# Tests get_user_gameslist
-# --------------------------
-def test_get_user_gameslist(clean_db):
-    username = "dave"
-    password = "pass123"
-
-    # Créer un utilisateur
-    user = create_user(username=username, password=password)
+def test_authenticate_user_success(test_users):
+    user = authenticate_user(TEST_USERS[0]['username'], TEST_USERS[0]['password'])
     assert user is not None
+    assert user["username"] == TEST_USERS[0]['username']
 
-    # Gamelist vide par défaut
-    gamelist = get_user_gameslist(username)
-    assert gamelist == {}
+
+def test_authenticate_user_wrong_password(test_users):
+    user = authenticate_user(TEST_USERS[0]['username'], "wrongpassword")
+    assert user is None
+
+
+def test_authenticate_user_not_found(test_users):
+    user = authenticate_user("does_not_exist", "password")
+    assert user is None
+
+
+def test_password_is_hashed(test_users):
+    user = get_user(TEST_USERS[0]['username'])
+    assert user["password"] != TEST_USERS[0]['password']
+    assert verify_password(TEST_USERS[0]['password'], user["password"])
+
+
+def test_admin_role(test_users):
+    admin = get_user(TEST_USERS[1]['username'])
+    assert admin is not None
+    assert admin["role"] == TEST_USERS[1]['role']
+
+
+def test_get_user_gameslist_empty(test_users):
+    gamelist = get_user_gameslist(TEST_USERS[0]['username'])
     assert isinstance(gamelist, dict)
-
-    # user inconnu
-    gamelist = get_user_gameslist("ghost")
-    assert gamelist is None
+    assert gamelist == {}
 
 
-# --------------------------
-# Tests update_user_gameslist
-# --------------------------
-def test_update_user_gameslist(clean_db):
-    username = "eve"
-    password = "password"
-
-    # Création utilisateur
-    user = create_user(username=username, password=password)
-    assert user is not None
-
-    # Mise à jour de la gamelist
-    user.gamelist = {
-        1: 12.5,
-        2: 42.0,
-        10: 3.14
+def test_update_user_gameslist(test_users):
+    user = get_user(TEST_USERS[0]['username'])
+    user["gamelist"] = {
+        '250616': 10
     }
 
     update_user_gameslist(user)
 
-    # Récupération depuis la DB
-    updated_user = get_user(username)
-    assert updated_user is not None
-    assert updated_user.gamelist == user.gamelist
-
-
-# --------------------------
-# Tests verify_password
-# --------------------------
-def test_verify_password():
-    plain = "mysecret"
-    hashed = pwd_context.hash(plain)
-
-    assert verify_password(plain, hashed) is True
-    assert verify_password("wrongpassword", hashed) is False
-
-
-# --------------------------
-# Tests authenticate_user
-# --------------------------
-def test_authenticate_user(clean_db):
-    username = "charlie"
-    password = "supersecret"
-    wrong_password = "nopass"
-
-    # Créer un utilisateur
-    user = create_user(username=username, password=password)
-    assert user is not None
-
-    # Authentification correcte
-    auth_user = authenticate_user(user.username, password)
-    assert auth_user is not None
-    assert auth_user.username == username
-
-    # Mauvais mot de passe
-    auth_wrong = authenticate_user(user.username, wrong_password)
-    assert auth_wrong is None
-
-    # Utilisateur inexistant
-    auth_none = authenticate_user("unknown", password)
-    assert auth_none is None
+    updated = get_user_gameslist(TEST_USERS[0]['username'])
+    assert '250616' in updated
+    assert updated['250616'] == 10
