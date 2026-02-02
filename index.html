@@ -5,24 +5,25 @@
   <link rel="stylesheet" href="css/style.css">
   <link rel="icon" type="image/x-icon" href="images/favicon.ico">
 </head>
-<body class="container">
+<body>
+<div class="container">
+    <div class="login-box">
+        <div class="center">
+            <div style="display: flex; align-items: center; justify-content: center;">
+                <img src="images/logo.png" alt="GameList Logo" width="70" height="70"> 
+                <h1>GameList</h1>
+            </div>
+            <p>Track, rate and discover new games</p>
+            <div id="error" class="error-message"></div>
+            <form id="login-form">
+                <input id="username" placeholder="Username" class="input">
+                <input id="password" type="password" placeholder="Password" class="input">
 
-<div class="login-box">
-    <div class="center">
-        <div style="display: flex; align-items: center; justify-content: center;">
-            <img src="images/logo.png" alt="GameList Logo" width="70" height="70"> 
-            <h1>GameList</h1>
+                <br><br>
+                <button type="submit" class="button">Login</button>
+            </form>
+            <button onclick="register()" class="button">Register</button>
         </div>
-        <p>Track, rate and discover new games</p>
-        <div id="error" class="error-message"></div>
-        <form id="login-form">
-            <input id="username" placeholder="Username" class="input">
-            <input id="password" type="password" placeholder="Password" class="input">
-
-            <br><br>
-            <button type="submit" class="button">Login</button>
-        </form>
-        <button onclick="register()" class="button">Register</button>
     </div>
 </div>
 <script src="js/api.js"></script>
