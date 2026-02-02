@@ -39,13 +39,55 @@
 
 <div id="search-overlay"></div>
 
-<div class="container">
-    <img id="game-cover" src="" alt="Game Cover" style="max-width: 300px; margin: 10px 0; border-radius: 8px;">
-    <h1 id="game-name"></h1>
+<div class="container game-page">
 
-    <button id="rate-btn" class="button">Rate this game</button>
+  <!-- ====== HEADER FICHE JEU ====== -->
+  <div class="game-hero">
 
-    <div id="rate-popup" class="popup">
+    <!-- Colonne gauche -->
+    <div class="game-left">
+      <img id="game-cover" class="game-cover" src="" alt="Game Cover">
+
+      <button id="rate-btn" class="button rate-button">
+        Rate this game
+      </button>
+    </div>
+
+    <!-- Colonne droite -->
+    <div class="game-right">
+      <h1 id="game-name"></h1>
+      <p id="storyline" class="game-storyline"></p>
+    </div>
+
+  </div>
+
+
+  <!-- ====== INFOS ====== -->
+  <div class="game-infos">
+
+    <div class="info-block">
+      <h3>Genres</h3>
+      <ul id="genres"></ul>
+    </div>
+
+    <div class="info-block">
+      <h3>Themes</h3>
+      <ul id="themes"></ul>
+    </div>
+
+    <div class="info-block">
+      <h3>Platforms</h3>
+      <ul id="platforms"></ul>
+    </div>
+
+    <div class="info-block">
+      <h3>Game modes</h3>
+      <ul id="modes"></ul>
+    </div>
+
+  </div>
+  
+  <div id="rate-popup" class="popup">
         <div class="popup-content">
             <span id="close-popup" class="close">&times;</span>
             <h3 id="popup-title">Rate the game</h3>
@@ -60,21 +102,6 @@
             </form>
         </div>
     </div>
-
-
-  <p id="storyline"></p>
-
-  <h3>Genres</h3>
-  <ul id="genres"></ul>
-
-  <h3>Themes</h3>
-  <ul id="themes"></ul>
-
-  <h3>Platforms</h3>
-  <ul id="platforms"></ul>
-
-  <h3>Game modes</h3>
-  <ul id="modes"></ul>
 </div>
 
 <script src="js/api.js"></script>
