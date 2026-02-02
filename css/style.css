@@ -163,7 +163,7 @@ header h2 {
 
 .container {
   padding: 30px;
-  max-width: 1500px;
+  width: 1500px;
   align-self: center;
 }
 
