@@ -15,21 +15,17 @@ async function loadProfile() {
     return;
   }
 
-  // 🔥 récupérer toutes les infos
   const infos = await Promise.all(
     entries.map(([gameId]) =>
       api(`/get_essential?id=${gameId}`, null, "POST")
     )
   );
 
-  // 🔥 construire objets combinés
   const combined = infos.map((game, index) => ({
     game,
     rating: entries[index][1]
   }));
 
-  // ✅ TRI :
-  // note ↓ puis nom ↑
   combined.sort((a, b) => {
     if (b.rating !== a.rating) {
       return b.rating - a.rating; // note décroissante
@@ -37,7 +33,6 @@ async function loadProfile() {
     return a.game.name.localeCompare(b.game.name); // alphabétique
   });
 
-  // 🔥 affichage
   combined.forEach(({ game, rating }) => {
     const li = document.createElement("li");
     li.className = "game-card";
