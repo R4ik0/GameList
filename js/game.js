@@ -17,7 +17,8 @@ async function loadGame() {
 
   document.getElementById("game-name").innerText = game.name;
   document.getElementById("game-title").innerText = game.name + " · GameList";
-  document.getElementById("storyline").innerText = game.storyline || "No description";
+  document.getElementById("storyline").innerText = game.storyline || "No description available for this game.";
+
 
   fillList("genres", game.genres);
   fillList("themes", game.themes);
@@ -98,3 +99,12 @@ deleteBtn.addEventListener("click", async () => {
   alert("Game removed from your list");
 });
 
+if (!localStorage.getItem("access_token")) {
+    window.location.href = "/GameList/";
+}
+
+document.getElementById("logout-btn").addEventListener("click", () => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    window.location.href = "/GameList/";
+});

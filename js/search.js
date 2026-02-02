@@ -12,7 +12,7 @@ document.getElementById("search-input").addEventListener("input", (e) => {
 
   searchTimeout = setTimeout(() => {
     searchGames(query);
-  }, 300); // debounce 300ms
+  }, 500); // debounce 500ms
 });
 
 async function searchGames(query) {
@@ -21,12 +21,24 @@ async function searchGames(query) {
   box.innerHTML = "";
 
   results.slice(0, 5).forEach(game => {
-    const div = document.createElement("div");
-    div.innerText = game.name;
-    div.onclick = () => {
-      window.location.href = `game?id=${game.id}`;
+    const item = document.createElement("div");
+    item.className = "search-result-item";
+
+    const img = document.createElement("img");
+    img.src = "https://images.igdb.com/igdb/image/upload/t_cover_small/" + game.image + ".jpg";
+    img.alt = game.name;
+
+    const span = document.createElement("span");
+    span.innerText = game.name;
+
+    item.appendChild(img);
+    item.appendChild(span);
+
+    item.onclick = () => {
+        window.location.href = `game?id=${game.id}`;
     };
-    box.appendChild(div);
+
+    box.appendChild(item);
   });
 
   box.style.display = results.length ? "block" : "none";
