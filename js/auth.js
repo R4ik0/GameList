@@ -1,5 +1,3 @@
-const API_URL = "https://game-list-murex.vercel.app";
-
 async function login() {
   const username = document.getElementById("username").value;
   const password = document.getElementById("password").value;
@@ -37,16 +35,40 @@ document.getElementById("login-form").addEventListener("submit", (e) => {
 
 
 async function register() {
-  const username = document.getElementById("username").value;
-  const password = document.getElementById("password").value;
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value.trim();
 
-  const res = await api("/register", { username, password });
-
-  if (res.success && res.token) {
-    localStorage.setItem("token", res.token);
-    window.location.href = "home";
-  } else {
-    document.getElementById("error").innerText = "Registration failed";
+  if (!username || !password) {
+    document.getElementById("error").innerText = "Username and password required";
+    return;
   }
+
+  const formData = new URLSearchParams();
+  formData.append("username", username);
+  formData.append("password", password);
+  formData.append("role", "user");
+
+  const res = await fetch(API_URL + "/signin", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: formData
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    document.getElementById("error").innerText =
+      err?.detail || "Registration failed";
+    return;
+  }
+
+  const data = await res.json();
+
+  localStorage.setItem("access_token", data.access_token);
+  localStorage.setItem("refresh_token", data.refresh_token);
+
+  window.location.href = "home";
 }
+
 
