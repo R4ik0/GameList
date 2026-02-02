@@ -15,16 +15,25 @@ async function loadProfile() {
     return;
   }
 
-  // 🔥 on récupère toutes les infos en parallèle
   const infos = await Promise.all(
     entries.map(([gameId]) =>
       api(`/get_essential?id=${gameId}`, null, "POST")
     )
   );
 
-  infos.forEach((game, index) => {
-    const rating = entries[index][1];
+  const combined = infos.map((game, index) => ({
+    game,
+    rating: entries[index][1]
+  }));
 
+  combined.sort((a, b) => {
+    if (b.rating !== a.rating) {
+      return b.rating - a.rating; // note décroissante
+    }
+    return a.game.name.localeCompare(b.game.name); // alphabétique
+  });
+
+  combined.forEach(({ game, rating }) => {
     const li = document.createElement("li");
     li.className = "game-card";
 
