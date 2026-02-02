@@ -53,16 +53,7 @@ def create_user(username: str, password: str, role: str = "user") -> Optional[di
 
 def get_user_gameslist(username: str) -> Optional[Dict]:
     user = get_user(username)
-    if not user:
-        return None
-
-    return dict(
-        sorted(
-            user["gamelist"].items(),
-            key=lambda item: item[1],
-            reverse=True
-        )
-    )
+    return user["gamelist"] if user else None
 
 
 def update_user_gameslist(user: dict) -> None:
