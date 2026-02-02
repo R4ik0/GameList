@@ -1,7 +1,9 @@
+const API_URL = "https://game-list-murex.vercel.app";
+
 async function api(path, data = null, method = "GET") {
   const token = localStorage.getItem("access_token");
 
-  const res = await fetch("http://localhost:8000" + path, {
+  const res = await fetch(API_URL + path, {
     method,
     headers: {
       "Content-Type": "application/json",
@@ -22,7 +24,7 @@ async function api(path, data = null, method = "GET") {
 async function refreshToken() {
   const refreshToken = localStorage.getItem("refresh_token");
 
-  const res = await fetch("http://localhost:8000" + "/refresh", {
+  const res = await fetch(API_URL + "/refresh", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(refreshToken)
