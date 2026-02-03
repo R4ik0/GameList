@@ -10,3 +10,5 @@ python-dotenv
 uvicorn[standard]
 supabase
 joblib
+torch
+scikit-learn
