@@ -66,6 +66,7 @@ def update_user_gameslist(user: dict) -> None:
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
+
 def authenticate_user(username: str, password: str) -> Optional[dict]:
     user = get_user(username)
     if not user:
