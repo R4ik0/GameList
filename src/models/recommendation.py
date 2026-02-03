@@ -1,8 +1,6 @@
 import os
 import io
 import joblib
-import torch
-import torch.nn as nn
 from sklearn.preprocessing import LabelEncoder, MultiLabelBinarizer
 from supabase import create_client
 from dotenv import load_dotenv
@@ -13,46 +11,26 @@ import numpy as np
 load_dotenv()
 
 
-### Model
-
-class RatingModel(nn.Module):
-    def __init__(self, n_users, n_games, n_features, emb_dim=32):
-        super().__init__()
-
-        self.user_emb = nn.Embedding(n_users, emb_dim)
-        self.game_emb = nn.Embedding(n_games, emb_dim)
-        self.feature_layer = nn.Linear(n_features, emb_dim)
-
-        self.fc = nn.Sequential(
-            nn.Linear(emb_dim * 3, 64),
-            nn.ReLU(),
-            nn.Linear(64, 1)
-        )
-
-    def forward(self, u, g, f):
-        x = torch.cat([
-            self.user_emb(u),
-            self.game_emb(g),
-            self.feature_layer(f)
-        ], dim=1)
-        return self.fc(x)
-
-
-
 ### Recommender (Inference only)
 
 class GameRecommender:
 
-    def __init__(self):
-        self.emb_dim = None
-        # self.user_enc = None
-        # self.game_enc = None
-        self.game_feature_tensor = None
-        self.model = None
-        self.user_enc = LabelEncoder()
-        self.game_enc = LabelEncoder()
-        self.genre_mlb = MultiLabelBinarizer()
-        self.platform_mlb = MultiLabelBinarizer()
+    def init(self, hidden_layer_sizes=(64,), lr=0.01, max_iter=500):
+            self.hidden_layer_sizes = hidden_layer_sizes
+            self.lr = lr
+            self.max_iter = max_iter
+
+            self.user_enc = LabelEncoder()
+            self.game_enc = LabelEncoder()
+            self.genre_mlb = MultiLabelBinarizer()
+            self.platform_mlb = MultiLabelBinarizer()
+
+            self.user_ohe = None
+            self.game_ohe = None
+
+            self.model = None
+            self.game_features = None
+            self.feature_cols = None
 
 
     ## Supabase client
@@ -67,71 +45,33 @@ class GameRecommender:
     ## Load bundle ← Supabase
 
     def load_from_supabase(self, remote_path="reco_model.joblib"):
-
         sb = self._supabase()
         data = sb.storage.from_("models").download(remote_path)
-
         bundle = joblib.load(io.BytesIO(data))
 
-        self.emb_dim = bundle["emb_dim"]
+        self.model = bundle["model"]
         self.user_enc = bundle["user_enc"]
         self.game_enc = bundle["game_enc"]
-
-        self.game_feature_tensor = torch.tensor(
-            bundle["game_features"],
-            dtype=torch.float32
-        )
-
-        self.model = RatingModel(
-            len(self.user_enc.classes_),
-            len(self.game_enc.classes_),
-            self.game_feature_tensor.shape[1],
-            self.emb_dim
-        )
-
-        self.model.load_state_dict(bundle["state_dict"])
-        self.model.eval()
+        self.user_ohe = bundle["user_ohe"]
+        self.game_ohe = bundle["game_ohe"]
+        self.genre_mlb = bundle["genre_mlb"]
+        self.platform_mlb = bundle["platform_mlb"]
+        self.feature_cols = bundle["feature_cols"]
+        self.game_features = bundle["game_features"]
 
         print("model loaded from supabase")
 
 
     ## Recommend
 
-    
-    # def recommend_from_candidates(self, user_id, candidate_game_ids, top_k=10):
-
-    #     if user_id not in self.user_enc.classes_:
-    #         raise ValueError("Unknown user_id")
-
-    #     self.model.eval()
-
-    #     u_idx = torch.tensor([self.user_enc.transform([user_id])[0]])
-
-    #     results = []
-
-    #     for gid in candidate_game_ids:
-    #         if gid not in self.game_enc.classes_:
-    #             continue
-
-    #         g_idx = torch.tensor([self.game_enc.transform([gid])[0]])
-    #         f = self.game_feature_tensor[g_idx]
-
-    #         with torch.no_grad():
-    #             score = self.model(u_idx, g_idx, f).item()
-
-    #         results.append((gid, score))
-
-    #     results.sort(key=lambda x: x[1], reverse=True)
-    #     return results[:top_k]
-    
     def recommend_from_candidates(self, user_id, candidate_game_ids, top_k=10):
         if self.model is None:
             raise ValueError("Model has not been trained or loaded.")
 
-        self.model.eval()
+        # Transformer l'utilisateur
         try:
-            u_idx = torch.tensor([self.user_enc.transform([user_id])[0]])
-            user_emb = self.model.user_emb(u_idx)
+            u_idx = self.user_enc.transform([user_id]).reshape(-1,1)
+            X_user = self.user_ohe.transform(u_idx)
         except ValueError:
             print(f"User {user_id} not found in the model.")
             return []
@@ -140,34 +80,34 @@ class GameRecommender:
 
         for gid in candidate_game_ids:
             if gid in self.game_enc.classes_:
-                g_val = self.game_enc.transform([gid])[0]
-                g_idx = torch.tensor([g_val])
-                game_emb = self.model.game_emb(g_idx)
-                f = self.game_feature_tensor[g_idx]
+                g_idx = self.game_enc.transform([gid]).reshape(-1,1)
+                X_game = self.game_ohe.transform(g_idx)
+                f_feat = self.game_features[g_idx.flatten()]
             else:
-                game_emb = torch.zeros((1, self.model.user_emb.embedding_dim))
+                X_game = np.zeros((1, len(self.game_enc.classes_)))
                 
-                # Encoder genres et platforms avec les MultiLabelBinarizer
-                g = get_game_from_igdb(gid)
-                genres = g.genres
-                platforms = g.platforms
+                try:
+                    g = get_game_from_igdb(gid)
+                    genres = g.genres
+                    platforms = g.platforms
+                except Exception as e:
+                    print(f"Erreur IGDB pour le jeu {gid}: {e}")
+                    genres, platforms = [], []
 
                 genre_vec = self.genre_mlb.transform([genres]) if hasattr(self.genre_mlb, "classes_") else np.zeros((1, 0))
                 platform_vec = self.platform_mlb.transform([platforms]) if hasattr(self.platform_mlb, "classes_") else np.zeros((1, 0))
 
-                f_vec = np.concatenate([genre_vec, platform_vec], axis=1)
-                f = torch.tensor(f_vec, dtype=torch.float32)
+                f_feat = np.concatenate([genre_vec, platform_vec], axis=1)
 
-                # Si le vecteur est plus petit que la feature_layer attendue, on complète avec des zéros
-                expected_dim = self.game_feature_tensor.shape[1]
-                if f.shape[1] < expected_dim:
-                    pad = torch.zeros((1, expected_dim - f.shape[1]))
-                    f = torch.cat([f, pad], dim=1)
+                expected_dim = self.game_features.shape[1]
+                if f_feat.shape[1] < expected_dim:
+                    pad = np.zeros((1, expected_dim - f_feat.shape[1]))
+                    f_feat = np.concatenate([f_feat, pad], axis=1)
 
-            with torch.no_grad():
-                x = torch.cat([user_emb, game_emb, self.model.feature_layer(f)], dim=1)
-                score = self.model.fc(x).item()
+            X_pred = np.concatenate([X_user, X_game, f_feat], axis=1)
+            score = self.model.predict(X_pred)[0]
             results.append((gid, score))
 
         results.sort(key=lambda x: x[1], reverse=True)
+        print(results[:top_k])
         return results[:top_k]
