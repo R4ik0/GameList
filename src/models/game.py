@@ -93,7 +93,7 @@ def get_cover_url(game_id):
     response = requests.post(url, headers=headers, data=body)
     response.raise_for_status()
     response = response.json()[0]
-    return response.get("image_id")
+    return response.get("image_id","")
 
 
 

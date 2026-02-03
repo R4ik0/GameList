@@ -8,8 +8,7 @@ from operator import itemgetter
 
 
 router = APIRouter(prefix="", tags=["igdb"])
-recommender = GameRecommender()
-recommender.load_from_supabase()
+
 
 
 
@@ -33,6 +32,8 @@ async def get_recommended_games(top_k: int = 10, current_user = Depends(get_curr
         if len(current_user["gamelist"]) == 0:
             best_X_games = get_best_X_games(top_k)
             return [x.get("id") for x in best_X_games]
+        recommender = GameRecommender()
+        recommender.load_from_supabase()
         all_similar_games = []
         for game_id in current_user["gamelist"]:
             similar_games = get_similar_games(game_id)
