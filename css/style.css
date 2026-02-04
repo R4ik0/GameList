@@ -98,6 +98,26 @@ header {
   display: none;
 }
 
+.search-loader {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  margin-top: -8px;
+  border: 2px solid #a0b1c5;
+  border-top: 2px solid #44444400;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: none;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .search-results {
   padding: 0;
   cursor: pointer;
