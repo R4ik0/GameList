@@ -1,5 +1,6 @@
 async function loadProfile() {
   const user = await api("/me");
+
   document.getElementById("username").innerText =
     user.username.charAt(0).toUpperCase() + user.username.slice(1);
 
@@ -15,24 +16,27 @@ async function loadProfile() {
     return;
   }
 
-  const infos = await Promise.all(
-    entries.map(([gameId]) =>
-      api(`/get_essential?id=${gameId}`, null, "POST")
-    )
-  );
+  // 🔥 extraire IDs
+  const ids = entries.map(([gameId]) => parseInt(gameId));
 
-  const combined = infos.map((game, index) => ({
+  // 🔥 appel batch unique
+  const infos = await api("/get_essential", ids, "POST");
+
+  // 🔥 associer rating
+  const combined = infos.map(game => ({
     game,
-    rating: entries[index][1]
+    rating: games[game.id]
   }));
 
+  // 🔥 tri note desc + alpha
   combined.sort((a, b) => {
     if (b.rating !== a.rating) {
-      return b.rating - a.rating; // note décroissante
+      return b.rating - a.rating;
     }
-    return a.game.name.localeCompare(b.game.name); // alphabétique
+    return a.game.name.localeCompare(b.game.name);
   });
 
+  // 🔥 rendu
   combined.forEach(({ game, rating }) => {
     const li = document.createElement("li");
     li.className = "game-card";

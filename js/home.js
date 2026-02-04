@@ -1,13 +1,13 @@
 async function loadRecommendations() {
-  const res = await api("/recommendation?X=5", null, "POST");
+  const res = await api("/recommendation?X=10", null, "POST");
   const list = document.getElementById("games-list");
   list.innerHTML = "";
 
-  const gamesPromises = res.map(game =>
-    api(`/get_essential?id=${game}`, null, "POST")
-  );
+  // 🔥 res = [id, id, id] ou [{id: x}]
+  const ids = res.map(g => g.id ?? g);
 
-  const gamesInfos = await Promise.all(gamesPromises);
+  // 🔥 appel batch
+  const gamesInfos = await api("/get_essential", ids, "POST");
 
   for (const game of gamesInfos) {
     const li = document.createElement("li");
@@ -30,6 +30,7 @@ async function loadRecommendations() {
     list.appendChild(li);
   }
 }
+
 
 
 loadRecommendations();
