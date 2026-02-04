@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from src.models.game import Game, get_game_from_igdb, get_best_X_games, search_game, get_name_from_attribute_id, get_cover_url, get_similar_games, get_rating
-from src.models.recommendation import GameRecommender
+from game_recommender import GameRecommender
 from dependencies import get_current_user
 from operator import itemgetter
 
