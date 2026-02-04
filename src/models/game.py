@@ -166,7 +166,7 @@ def get_rating(id_list):
     response = requests.post(url, headers=headers, data=body)
     response.raise_for_status()
     result = response.json()[0]
-    return result.get('rating', 0)
+    return result
 
 
 
