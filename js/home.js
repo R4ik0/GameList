@@ -4,7 +4,7 @@ async function loadRecommendations() {
   list.innerHTML = "";
 
   const gamesPromises = res.map(game =>
-    api(`/get_essential?id=${game.id}`, null, "POST")
+    api(`/get_essential?id=${game}`, null, "POST")
   );
 
   const gamesInfos = await Promise.all(gamesPromises);
