@@ -134,29 +134,35 @@ def search_game(name):
 
 
 
-def get_similar_games(id):
+def get_similar_games(id_list):
     url = "https://api.igdb.com/v4/games"
     headers = {
         "Client-ID": CLIENT_ID,
         "Authorization": f"Bearer {ACCESS_TOKEN}",
         "Content-Type": "text/plain"
     }
-    body = f"fields similar_games; where id = {id};"
+    if len(id_list) == 0:
+        return []
+    id_string = ", ".join(str(i) for i in id_list)
+    body = f"fields similar_games; where id = ({id_string});"
     response = requests.post(url, headers=headers, data=body)
     response.raise_for_status()
-    result = response.json()[0]
-    return result.get("similar_games",[])
+    result = response.json()
+    return result
 
 
 
-def get_rating(id):
+def get_rating(id_list):
     url = "https://api.igdb.com/v4/games"
     headers = {
         "Client-ID": CLIENT_ID,
         "Authorization": f"Bearer {ACCESS_TOKEN}",
         "Content-Type": "text/plain"
     }
-    body = f"fields rating; where id = {id};"
+    if len(id_list) == 0:
+        return []
+    id_string = ", ".join(str(i) for i in id_list)
+    body = f"fields rating; where id = ({id_string});"
     response = requests.post(url, headers=headers, data=body)
     response.raise_for_status()
     result = response.json()[0]
