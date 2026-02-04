@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import OAuth2PasswordRequestForm
-from src.models.game import Game, get_game_from_igdb, get_best_X_games, search_game, get_name_from_attribute_id, get_cover_url, get_similar_games, get_rating
+from src.models.game import Game, get_game_from_igdb, get_best_X_games, search_game, get_name_from_attribute_id, get_cover_url, get_similar_games, get_best_similar_games
 from game_recommender import GameRecommender
 from dependencies import get_current_user
 from operator import itemgetter
@@ -27,17 +27,12 @@ async def get_recommended_games(top_k: int = 10, current_user = Depends(get_curr
             return [x.get("id") for x in best_X_games]
         recommender = GameRecommender()
         recommender.load_from_supabase()
-        all_similar_games = []
         temp = get_similar_games(current_user["gamelist"])
         similar_games = []
         for i in temp:
             similar_games += i.get("similar_games",[])
-        rating_list = get_rating(similar_games)
-        for couple in [(rating_list[i].get("id"),rating_list[i].get("rating",0)) for i in range(len(rating_list))]:
-            if f"{couple[0]}" not in current_user["gamelist"]:
-                all_similar_games.append(couple)
-        all_similar_games.sort(key=itemgetter(1), reverse=True)
-        results = recommender.recommend_from_candidates(current_user["id"], [x[0] for x in all_similar_games[:100]], top_k)
+        list_temp = [i.get("id") for i in get_best_similar_games(similar_games)[:100] if i.get("id") not in current_user["gamelist"].keys()]
+        results = recommender.recommend_from_candidates(current_user["id"], list_temp, top_k)
         return [x[0] for x in results]
     except ValueError:
         raise HTTPException(
