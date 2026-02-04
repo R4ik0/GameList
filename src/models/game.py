@@ -165,8 +165,8 @@ def get_rating(id_list):
     body = f"fields rating; where id = ({id_string});"
     response = requests.post(url, headers=headers, data=body)
     response.raise_for_status()
-    result = response.json()[0]
-    return result.get('rating', 0)
+    result = response.json()
+    return result
 
 
 
