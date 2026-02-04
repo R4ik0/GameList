@@ -91,12 +91,11 @@ def get_best_X_games(X):
         "Authorization": f"Bearer {ACCESS_TOKEN}",
         "Content-Type": "text/plain"
     }
-    body = f"fields id; limit {X}; sort rating desc;"
+    body = f"fields id; limit {X}; sort rating desc; where game_type=(0,1,4,8,9) & rating_count > 500;"
     response = requests.post(url, headers=headers, data=body)
     response.raise_for_status()
     response = response.json()
     return response
-
 
 
 def get_cover_url(game_id):
@@ -152,7 +151,7 @@ def get_similar_games(id_list):
 
 
 
-def get_rating(id_list):
+def get_best_similar_games(id_list):
     url = "https://api.igdb.com/v4/games"
     headers = {
         "Client-ID": CLIENT_ID,
@@ -162,7 +161,7 @@ def get_rating(id_list):
     if len(id_list) == 0:
         return []
     id_string = ", ".join(str(i) for i in id_list)
-    body = f"fields rating; where id = ({id_string}); limit {len(id_list)};"
+    body = f"fields id; where id = ({id_string}) & rating_count > 50; sort rating desc; limit {len(id_list)};"
     response = requests.post(url, headers=headers, data=body)
     response.raise_for_status()
     result = response.json()
