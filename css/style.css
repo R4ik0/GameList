@@ -89,10 +89,10 @@ header {
 
 #search-overlay {
   position: fixed;
-  top: 68px; /* hauteur du header */
+  top: 0;
   left: 0;
   width: 100%;
-  height: calc(100% - 68px);
+  height: 100%;
   background: rgba(18,22,28,.7);
   z-index: 500;
   display: none;
