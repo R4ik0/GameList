@@ -5,6 +5,7 @@ from game_recommender import GameRecommender
 from dependencies import get_current_user
 from operator import itemgetter
 from data.database import supabase
+from typing import List
 
 
 
@@ -52,7 +53,6 @@ async def get_games_from_name(name: str):
 @router.post("/full_game")
 async def get_full_game(id: int):
     genres, themes, game_modes, platforms = [], [], [], []
-
     existing = (
         supabase
         .table("games")
@@ -60,7 +60,6 @@ async def get_full_game(id: int):
         .eq("id_game", id)
         .execute()
     )
-
     if existing.data:
         return Game(
             id = existing.data[0]["id_game"],
@@ -72,42 +71,39 @@ async def get_full_game(id: int):
             storyline = existing.data[0]["storyline"],
             cover = existing.data[0]["cover"]
         )
-    
     game = get_game_from_igdb(id)
-
     mapping = [
         ("genres", game.genres, genres),
         ("themes", game.themes, themes),
         ("game_modes", game.game_modes, game_modes),
         ("platforms", game.platforms, platforms),
     ]
-
     for attr, values, target in mapping:
         target.extend(
             item["name"]
             for item in get_name_from_attribute_id(attr, values)
         )
-    
     cover = get_cover_url(id)
-
     return Game(id = game.id, name = game.name, genres = genres, themes = themes, game_modes = game_modes, platforms = platforms, storyline = game.storyline, cover = cover)
 
 
 
 @router.post("/get_essential")
-async def get_essential(id: int):
-
-    existing = (
-        supabase
-        .table("games")
-        .select("*")
-        .eq("id_game", id)
-        .execute()
-    )
-
-    if existing.data:
-        return {"id": id, "name": existing.data[0]["name"], "cover": existing.data[0]["cover"]}
-
-    game_name = get_name_from_attribute_id("games",[id])[0].get("name")
-    cover = get_cover_url(id)
-    return {"id": id, "name": game_name, "cover": cover}
+async def get_essential(ids: List[int]):
+    game_names = get_name_from_attribute_id("games",ids)
+    result = []
+    for i in range(len(ids)):
+        existing = (
+            supabase
+            .table("games")
+            .select("id_game, name, cover")
+            .eq("id_game", ids[i])
+            .execute()
+        )
+        if existing.data:
+            game = existing.data[0]
+            game["id"] = game.pop("id_game")
+            result.append(game)
+        else:
+            result.append({"id": ids[i], "name": game_names[i].get("name"), "cover": get_cover_url(ids[i])})
+    return result
