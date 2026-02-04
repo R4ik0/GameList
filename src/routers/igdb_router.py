@@ -105,5 +105,5 @@ async def get_essential(ids: List[int]):
             game["id"] = game.pop("id_game")
             result.append(game)
         else:
-            result.append({"id": ids[i], "name": game_names[i].get("name"), "cover": get_cover_url(ids[i])})
+            result.append({"id": game_names[i].get("id"), "name": game_names[i].get("name"), "cover": get_cover_url(game_names[i].get("id"))})
     return result
