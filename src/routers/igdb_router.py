@@ -113,6 +113,6 @@ async def get_essential(id: int):
     if existing.data:
         return {"id": id, "name": existing.data[0]["name"], "cover": existing.data[0]["cover"]}
 
-    game_name = get_name_from_attribute_id("games",id)
+    game_name = get_name_from_attribute_id("games",[id])[0].get("name")
     cover = get_cover_url(id)
     return {"id": id, "name": game_name, "cover": cover}
