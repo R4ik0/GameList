@@ -1,7 +1,10 @@
 let searchTimeout = null;
+let lastSearchId = 0;
+let lastQuery = "";
 
 document.getElementById("search-input").addEventListener("input", (e) => {
   const query = e.target.value.trim();
+  lastQuery = query;
 
   if (searchTimeout) clearTimeout(searchTimeout);
 
@@ -12,8 +15,9 @@ document.getElementById("search-input").addEventListener("input", (e) => {
 
   searchTimeout = setTimeout(() => {
     searchGames(query);
-  }, 300); // debounce 300ms
+  }, 300);
 });
+
 
 function showLoader() {
   document.getElementById("search-loader").style.display = "block";
@@ -24,22 +28,33 @@ function hideLoader() {
 }
 
 async function searchGames(query) {
+  const mySearchId = ++lastSearchId;
   const box = document.getElementById("search-results");
 
-  showLoader(); // start spinner
+  showLoader();
 
   try {
-    const results = await api(`/search?name=${encodeURIComponent(query)}`, null, "POST");
+    const results = await api(
+      `/search?name=${encodeURIComponent(query)}`,
+      null,
+      "POST"
+    );
 
-    box.innerHTML = "";
+    if (mySearchId !== lastSearchId) return;
+
+    if (mySearchId === lastSearchId) {
+      box.innerHTML = "";
+    }
 
     results.slice(0, 5).forEach(game => {
       const item = document.createElement("div");
       item.className = "search-result-item";
 
       const img = document.createElement("img");
-      img.src = "https://images.igdb.com/igdb/image/upload/t_cover_small/" + game.image + ".jpg";
-      img.alt = game.name;
+      img.src =
+        "https://images.igdb.com/igdb/image/upload/t_cover_small/" +
+        game.image +
+        ".jpg";
 
       const span = document.createElement("span");
       span.innerText = game.name;
@@ -57,7 +72,9 @@ async function searchGames(query) {
     box.style.display = results.length ? "block" : "none";
 
   } finally {
-    hideLoader(); // stop spinner même si erreur
+    if (mySearchId === lastSearchId) {
+      hideLoader();
+    }
   }
 }
 
@@ -74,7 +91,12 @@ document.addEventListener("click", (e) => {
 
 document.getElementById("search-input").addEventListener("focus", () => {
   showOverlay();
+
+  if (lastQuery.length > 0) {
+    searchGames(lastQuery);
+  }
 });
+
 
 document.getElementById("search-overlay").addEventListener("click", () => {
   hideOverlay();
