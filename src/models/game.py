@@ -4,6 +4,7 @@ import random as rd
 import requests
 import os
 from typing import List, Optional
+from data.database import supabase
 
 
 
@@ -52,18 +53,34 @@ def get_game_from_igdb(game_id):
 
 
 
-def get_name_from_attribute_id(attribute, attribute_id):
+def get_game_from_bdd(game_id) -> Optional[dict]:
+    res = (
+        supabase
+        .table("games")
+        .select("*")
+        .eq("id", game_id)
+        .maybe_single()
+        .execute()
+    )
+    return res.data if res else None
+
+
+
+def get_name_from_attribute_id(attribute, attribute_id_list):
     url = f"https://api.igdb.com/v4/{attribute}/"
     headers = {
         "Client-ID": CLIENT_ID,
         "Authorization": f"Bearer {ACCESS_TOKEN}",
         "Content-Type": "text/plain"
     }
-    body = f"fields name; where id = {attribute_id};"
+    if not attribute_id_list:
+        return []
+    id_string = ", ".join(str(i) for i in attribute_id_list)
+    body = f"fields name; where id = ({id_string});"
     response = requests.post(url, headers=headers, data=body)
     response.raise_for_status()
-    name = response.json()[0]
-    return name.get("name")
+    name = response.json()
+    return name
 
 
 
@@ -92,8 +109,10 @@ def get_cover_url(game_id):
     body = f"fields image_id; where game = {game_id};"
     response = requests.post(url, headers=headers, data=body)
     response.raise_for_status()
+    if len(response.json()) == 0:
+        return "co86z1"
     response = response.json()[0]
-    return response.get("image_id","")
+    return response.get("image_id")
 
 
 
@@ -142,3 +161,52 @@ def get_rating(id):
     response.raise_for_status()
     result = response.json()[0]
     return result.get('rating', 0)
+
+
+
+
+
+def create_game_in_bdd(game_id: str) -> Optional[dict]:
+    # Vérifier existence
+    existing = (
+        supabase
+        .table("games")
+        .select("*")
+        .eq("id_game", game_id)
+        .execute()
+    )
+
+    if existing.data:
+        print(f"Le jeu '{game_id}' existe déjà")
+        return None
+
+    game = get_game_from_igdb(game_id)
+    genres, themes, game_modes, platforms = [], [], [], []
+    mapping = [
+        ("genres", game.genres, genres),
+        ("themes", game.themes, themes),
+        ("game_modes", game.game_modes, game_modes),
+        ("platforms", game.platforms, platforms),
+    ]
+
+    for attr, values, target in mapping:
+        target.extend(
+            item["name"]
+            for item in get_name_from_attribute_id(attr, values)
+        )
+    
+    cover = get_cover_url(game_id)
+
+    json_game = {
+        "id_game": game.id,
+        "name": game.name,
+        "genres": genres,
+        "themes": themes,
+        "game_modes": game_modes,
+        "platforms": platforms,
+        "storyline": game.storyline,
+        "cover": cover
+    }
+
+    res = supabase.table("games").insert(json_game).execute()
+    return res.data[0] if res.data else None

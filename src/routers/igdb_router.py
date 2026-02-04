@@ -4,6 +4,7 @@ from src.models.game import Game, get_game_from_igdb, get_best_X_games, search_g
 from game_recommender import GameRecommender
 from dependencies import get_current_user
 from operator import itemgetter
+from data.database import supabase
 
 
 
@@ -61,23 +62,63 @@ async def get_games_from_name(name: str):
 
 @router.post("/full_game")
 async def get_full_game(id: int):
+    genres, themes, game_modes, platforms = [], [], [], []
+
+    existing = (
+        supabase
+        .table("games")
+        .select("*")
+        .eq("id_game", id)
+        .execute()
+    )
+
+    if existing.data:
+        return Game(
+            id = existing.data[0]["id_game"],
+            name = existing.data[0]["name"],
+            genres = existing.data[0]["genres"],
+            themes = existing.data[0]["themes"],
+            game_modes = existing.data[0]["game_modes"],
+            platforms = existing.data[0]["platforms"],
+            storyline = existing.data[0]["storyline"],
+            cover = existing.data[0]["cover"]
+        )
+    
     game = get_game_from_igdb(id)
-    genres,themes,game_modes,platforms = [], [], [], []
-    for i in game.genres:
-        genres.append(get_name_from_attribute_id('genres', i))
-    for i in game.themes:
-        themes.append(get_name_from_attribute_id('themes', i))
-    for i in game.game_modes:
-        game_modes.append(get_name_from_attribute_id('game_modes', i))
-    for i in game.platforms:
-        platforms.append(get_name_from_attribute_id('platforms', i))
+
+    mapping = [
+        ("genres", game.genres, genres),
+        ("themes", game.themes, themes),
+        ("game_modes", game.game_modes, game_modes),
+        ("platforms", game.platforms, platforms),
+    ]
+
+    for attr, values, target in mapping:
+        target.extend(
+            item["name"]
+            for item in get_name_from_attribute_id(attr, values)
+        )
+    
     cover = get_cover_url(id)
+
     return Game(id = game.id, name = game.name, genres = genres, themes = themes, game_modes = game_modes, platforms = platforms, storyline = game.storyline, cover = cover)
 
 
 
 @router.post("/get_essential")
 async def get_essential(id: int):
+
+    existing = (
+        supabase
+        .table("games")
+        .select("*")
+        .eq("id_game", id)
+        .execute()
+    )
+
+    if existing.data:
+        return {"id": id, "name": existing.data[0]["name"], "cover": existing.data[0]["cover"]}
+
     game_name = get_name_from_attribute_id("games",id)
     cover = get_cover_url(id)
     return {"id": id, "name": game_name, "cover": cover}

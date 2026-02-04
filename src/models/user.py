@@ -9,7 +9,6 @@ from data.database import supabase
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
-data_path = "data/"
 
 def get_user(username: str) -> Optional[dict]:
     res = (
@@ -35,7 +34,7 @@ def create_user(username: str, password: str, role: str = "user") -> Optional[di
     )
 
     if existing.data:
-        print(f"❌ L'utilisateur '{username}' existe déjà")
+        print(f"L'utilisateur '{username}' existe déjà")
         return None
 
     hashed = pwd_context.hash(password)
