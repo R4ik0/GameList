@@ -74,7 +74,7 @@ with mlflow.start_run(run_name="reco_training"):
     rec = GameRecommender(
         hidden_layer_sizes=(64,),   # remplace emb_dim
         lr=0.01,
-        max_iter=25                 # remplace epochs
+        max_iter=200                 # remplace epochs
     )
 
     # Construire les features des jeux
