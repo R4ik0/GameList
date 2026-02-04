@@ -1,5 +1,5 @@
 async function loadRecommendations() {
-  const res = await api("/recommendation?X=10", null, "POST");
+  const res = await api("/recommendation?X=5", null, "POST");
   const list = document.getElementById("games-list");
   list.innerHTML = "";
 
