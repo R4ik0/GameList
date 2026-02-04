@@ -76,7 +76,7 @@ def get_name_from_attribute_id(attribute, attribute_id_list):
     if not attribute_id_list:
         return []
     id_string = ", ".join(str(i) for i in attribute_id_list)
-    body = f"fields name; where id = ({id_string});"
+    body = f"fields name; where id = ({id_string}); limit {len(attribute_id_list)};"
     response = requests.post(url, headers=headers, data=body)
     response.raise_for_status()
     name = response.json()
