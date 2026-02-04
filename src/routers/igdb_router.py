@@ -33,7 +33,7 @@ async def get_recommended_games(top_k: int = 10, current_user = Depends(get_curr
         for i in temp:
             similar_games += i.get("similar_games",[])
         rating_list = get_rating(similar_games)
-        for couple in [(similar_games[i],rating_list[i].get("rating")) for i in range(len(rating_list))]:
+        for couple in [(similar_games[i],rating_list[i].get("rating",0)) for i in range(len(rating_list))]:
             if couple[0] not in current_user["gamelist"] and couple not in all_similar_games:
                 all_similar_games.append(couple)
         all_similar_games.sort(key=itemgetter(1), reverse=True)
