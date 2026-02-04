@@ -5,14 +5,14 @@ document.getElementById("search-input").addEventListener("input", (e) => {
 
   if (searchTimeout) clearTimeout(searchTimeout);
 
-  if (query.length < 2) {
+  if (query.length < 1) {
     hideResults();
     return;
   }
 
   searchTimeout = setTimeout(() => {
     searchGames(query);
-  }, 500); // debounce 500ms
+  }, 300); // debounce 300ms
 });
 
 async function searchGames(query) {
