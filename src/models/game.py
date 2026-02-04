@@ -52,18 +52,21 @@ def get_game_from_igdb(game_id):
 
 
 
-def get_name_from_attribute_id(attribute, attribute_id):
+def get_name_from_attribute_id(attribute, attribute_id_list):
     url = f"https://api.igdb.com/v4/{attribute}/"
     headers = {
         "Client-ID": CLIENT_ID,
         "Authorization": f"Bearer {ACCESS_TOKEN}",
         "Content-Type": "text/plain"
     }
-    body = f"fields name; where id = {attribute_id};"
+    if len(attribute_id_list) == 0:
+        return []
+    id_string = ", ".join(str(i) for i in attribute_id_list)
+    body = f"fields name; where id = ({id_string});"
     response = requests.post(url, headers=headers, data=body)
     response.raise_for_status()
-    name = response.json()[0]
-    return name.get("name")
+    name = response.json()
+    return name
 
 
 
@@ -92,8 +95,10 @@ def get_cover_url(game_id):
     body = f"fields image_id; where game = {game_id};"
     response = requests.post(url, headers=headers, data=body)
     response.raise_for_status()
+    if len(response.json()) == 0:
+        return "co86z1"
     response = response.json()[0]
-    return response.get("image_id","")
+    return response.get("image_id")
 
 
 
@@ -115,30 +120,36 @@ def search_game(name):
 
 
 
-def get_similar_games(id):
+def get_similar_games(id_list):
     url = "https://api.igdb.com/v4/games"
     headers = {
         "Client-ID": CLIENT_ID,
         "Authorization": f"Bearer {ACCESS_TOKEN}",
         "Content-Type": "text/plain"
     }
-    body = f"fields similar_games; where id = {id};"
+    if len(id_list) == 0:
+        return []
+    id_string = ", ".join(str(i) for i in id_list)
+    body = f"fields similar_games; where id = ({id_string});"
     response = requests.post(url, headers=headers, data=body)
     response.raise_for_status()
-    result = response.json()[0]
-    return result.get("similar_games",[])
+    result = response.json()
+    return result
 
 
 
-def get_rating(id):
+def get_rating(id_list):
     url = "https://api.igdb.com/v4/games"
     headers = {
         "Client-ID": CLIENT_ID,
         "Authorization": f"Bearer {ACCESS_TOKEN}",
         "Content-Type": "text/plain"
     }
-    body = f"fields rating; where id = {id};"
+    if len(id_list) == 0:
+        return []
+    id_string = ", ".join(str(i) for i in id_list)
+    body = f"fields rating; where id = ({id_string});"
     response = requests.post(url, headers=headers, data=body)
     response.raise_for_status()
-    result = response.json()[0]
-    return result.get('rating', 0)
+    result = response.json()
+    return result

@@ -11,18 +11,10 @@ router = APIRouter(prefix="", tags=["igdb"])
 
 
 
-
 @router.post("/get_game")
 async def get_game_from_id(id: int):
     game = get_game_from_igdb(id)
     return game
-
-
-
-@router.post("/get_attribute_name")
-async def get_attribute_name(attribute: str, id: int):
-    name = get_name_from_attribute_id(attribute, id)
-    return name
 
 
 
@@ -35,12 +27,14 @@ async def get_recommended_games(top_k: int = 10, current_user = Depends(get_curr
         recommender = GameRecommender()
         recommender.load_from_supabase()
         all_similar_games = []
-        for game_id in current_user["gamelist"]:
-            similar_games = get_similar_games(game_id)
-            for game in similar_games:
-                couple = (game,get_rating(game))
-                if game not in current_user["gamelist"] and couple not in all_similar_games:
-                    all_similar_games.append(couple)
+        temp = get_similar_games(current_user["gamelist"])
+        similar_games = []
+        for i in temp:
+            similar_games += i.get("similar_games",[])
+        rating_list = get_rating(similar_games)
+        for couple in [(similar_games[i],rating_list[i].get("rating")) for i in range(len(rating_list))]:
+            if couple[0] not in current_user["gamelist"] and couple not in all_similar_games:
+                all_similar_games.append(couple)
         all_similar_games.sort(key=itemgetter(1), reverse=True)
         results = recommender.recommend_from_candidates(current_user["id"], [x[0] for x in all_similar_games[:100]], top_k)
         return [x[0] for x in results]
@@ -63,14 +57,18 @@ async def get_games_from_name(name: str):
 async def get_full_game(id: int):
     game = get_game_from_igdb(id)
     genres,themes,game_modes,platforms = [], [], [], []
-    for i in game.genres:
-        genres.append(get_name_from_attribute_id('genres', i))
-    for i in game.themes:
-        themes.append(get_name_from_attribute_id('themes', i))
-    for i in game.game_modes:
-        game_modes.append(get_name_from_attribute_id('game_modes', i))
-    for i in game.platforms:
-        platforms.append(get_name_from_attribute_id('platforms', i))
+    temp = get_name_from_attribute_id('genres', game.genres)
+    for i in temp:
+        genres.append(i.get("name"))
+    temp = get_name_from_attribute_id('themes', game.themes)
+    for i in temp:
+        themes.append(i.get("name"))
+    temp = get_name_from_attribute_id('game_modes', game.game_modes)
+    for i in temp:
+        game_modes.append(i.get("name"))
+    temp = get_name_from_attribute_id('platforms', game.platforms)
+    for i in temp:
+        platforms.append(i.get("name"))
     cover = get_cover_url(id)
     return Game(id = game.id, name = game.name, genres = genres, themes = themes, game_modes = game_modes, platforms = platforms, storyline = game.storyline, cover = cover)
 
@@ -78,6 +76,6 @@ async def get_full_game(id: int):
 
 @router.post("/get_essential")
 async def get_essential(id: int):
-    game_name = get_name_from_attribute_id("games",id)
+    game_name = get_name_from_attribute_id("games",[id])[0].get("name")
     cover = get_cover_url(id)
     return {"id": id, "name": game_name, "cover": cover}
