@@ -92,12 +92,12 @@ async def get_full_game(id: int):
 async def get_essential(ids: List[int]):
     game_names = get_name_from_attribute_id("games",ids)
     result = []
-    for i in range(len(ids)):
+    for i in range(len(game_names)):
         existing = (
             supabase
             .table("games")
             .select("id_game, name, cover")
-            .eq("id_game", ids[i])
+            .eq("id_game", game_names[i].get("id"))
             .execute()
         )
         if existing.data:
