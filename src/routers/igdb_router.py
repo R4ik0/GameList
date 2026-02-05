@@ -35,9 +35,9 @@ async def get_recommended_games(top_k: int = 10, current_user = Depends(get_curr
             similar_games += i.get("similar_games",[])
         list_temp = [i.get("id") for i in get_best_similar_games(similar_games) if f"{i.get('id')}" not in current_user["gamelist"].keys()][:100]
         results = recommender.recommend_from_candidates(current_user["id"], list_temp, top_k)
-        for gid, _ in results:
-            create_game_in_bdd(gid)
+
         return [x[0] for x in results]
+    
     except ValueError:
         raise HTTPException(
             status_code=400,
