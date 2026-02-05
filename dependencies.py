@@ -1,4 +1,5 @@
 from fastapi import HTTPException, Depends
+from typing import Annotated
 
 
 
@@ -6,7 +7,7 @@ from src.models.tokens import decode_access_token
 from src.models.user import oauth2_scheme, get_user
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
+def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     credentials_exception = HTTPException(
         status_code=401, 
         detail="Could not validate credentials", 
@@ -23,7 +24,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 
 
 def require_roles(*roles):
-    async def dep(current_user = Depends(get_current_user)):
+    def dep(current_user = Annotated[dict, Depends(get_current_user)]):
         if current_user["role"] not in roles:
             raise HTTPException(status_code=403, detail="Forbidden")
         return current_user
