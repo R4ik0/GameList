@@ -110,11 +110,12 @@ async def get_essential(ids: List[int]):
         missing_ids = set(ids) - {item["id"] for item in existing.data}
         print(f"Missing IDs: {missing_ids}")
         images = get_cover_url(list(missing_ids))
-        for game in get_name_from_attribute_id("games", list(missing_ids)):
-            dict_by_id[game["id"]] = {
-                "id": game["id"],
-                "name": game["name"],
-                "cover": images[missing_ids.index(game["id"])]
+        games = get_name_from_attribute_id("games", list(missing_ids))
+        for i in range(len(missing_ids)):
+            dict_by_id[games[i]["id"]] = {
+                "id": games[i]["id"],
+                "name": games[i]["name"],
+                "cover": images[i]
             }
         
         return [dict_by_id[i] for i in ids]
