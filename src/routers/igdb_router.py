@@ -30,14 +30,11 @@ async def get_recommended_games(top_k: int = 10, current_user = Depends(get_curr
         recommender.load_from_supabase()
         temp = get_similar_games(current_user["gamelist"])
         similar_games = []
-        
         for i in temp:
             similar_games += i.get("similar_games",[])
         list_temp = [i.get("id") for i in get_best_similar_games(similar_games) if f"{i.get('id')}" not in current_user["gamelist"].keys()][:100]
         results = recommender.recommend_from_candidates(current_user["id"], list_temp, top_k)
-
         return [x[0] for x in results]
-    
     except ValueError:
         raise HTTPException(
             status_code=400,
@@ -63,7 +60,6 @@ async def get_full_game(id: int):
         .eq("id_game", id)
         .execute()
     )
-
     if existing.data:
         return Game(
             id = existing.data[0]["id_game"],
@@ -75,7 +71,6 @@ async def get_full_game(id: int):
             storyline = existing.data[0]["storyline"],
             cover = existing.data[0]["cover"]
         )
-    
     game = get_game_from_igdb(id)
     mapping = [
         ("genres", game.genres, genres),
@@ -83,7 +78,6 @@ async def get_full_game(id: int):
         ("game_modes", game.game_modes, game_modes),
         ("platforms", game.platforms, platforms),
     ]
-
     for attr, values, target in mapping:
         target.extend(
             item["name"]
@@ -96,7 +90,6 @@ async def get_full_game(id: int):
 
 @router.post("/get_essential")
 async def get_essential(ids: List[int]):
-
     existing = (
         supabase
         .table("games")
@@ -104,13 +97,11 @@ async def get_essential(ids: List[int]):
         .in_("id_game", ids)
         .execute()
     )
-
     data = existing.data or []
     dict_by_id = {}
     for game in data:
         game["id"] = game.pop("id_game")
         dict_by_id[game["id"]] = game
-    
     if len(existing.data) == len(ids):
         return existing.data
     else:
