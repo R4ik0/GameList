@@ -43,9 +43,7 @@ async def prometheus_middleware(request: Request, call_next):
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:5500",      # live-server
-        "http://127.0.0.1:5500",
-        "https://r4ik0.github.io",    # GitHub Pages
+        "*",
     ],
     allow_credentials=True,
     allow_methods=["*"],

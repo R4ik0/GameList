@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends
 
 
 from src.models.user import update_user_gameslist
+from src.models.game import create_game_in_bdd
 from dependencies import get_current_user
 
 
@@ -22,12 +23,14 @@ async def read_users_me(current_user = Depends(get_current_user)):
 #   -H "Authorization: Bearer "
 
 
+
 # -----------------------
 # GET USER GAMESLIST
 # -----------------------
 @router.get("/GamesList", response_model=dict)
 async def get_gameslist(current_user = Depends(get_current_user)):
     return current_user["gamelist"]
+
 
 
 # -----------------------
@@ -41,7 +44,10 @@ async def add_or_update_game(
 ):
     current_user["gamelist"][game_id] = rating
     update_user_gameslist(current_user)
+    create_game_in_bdd(game_id)
     return current_user["gamelist"]
+
+
 
 # -----------------------
 # DELETE A GAME IN USER'S GAMESLIST

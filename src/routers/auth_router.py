@@ -49,8 +49,8 @@ async def signin(form_data: OAuth2PasswordRequestForm = Depends(), role: str = F
         )
 
     # Créer access + refresh token
-    access_token = create_access_token(data={"sub": user.username})
-    refresh_token = create_refresh_token(data={"sub": user.username})
+    access_token = create_access_token(data={"sub": user['username']})
+    refresh_token = create_refresh_token(data={"sub": user['username']})
 
     return Token(
         access_token=access_token,

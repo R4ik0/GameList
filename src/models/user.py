@@ -9,7 +9,6 @@ from data.database import supabase
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
-data_path = "data/"
 
 def get_user(username: str) -> Optional[dict]:
     res = (
@@ -35,7 +34,7 @@ def create_user(username: str, password: str, role: str = "user") -> Optional[di
     )
 
     if existing.data:
-        print(f"❌ L'utilisateur '{username}' existe déjà")
+        print(f"L'utilisateur '{username}' existe déjà")
         return None
 
     hashed = pwd_context.hash(password)
@@ -53,16 +52,7 @@ def create_user(username: str, password: str, role: str = "user") -> Optional[di
 
 def get_user_gameslist(username: str) -> Optional[Dict]:
     user = get_user(username)
-    if not user:
-        return None
-
-    return dict(
-        sorted(
-            user["gamelist"].items(),
-            key=lambda item: item[1],
-            reverse=True
-        )
-    )
+    return user["gamelist"] if user else None
 
 
 def update_user_gameslist(user: dict) -> None:
@@ -74,6 +64,7 @@ def update_user_gameslist(user: dict) -> None:
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
+
 
 def authenticate_user(username: str, password: str) -> Optional[dict]:
     user = get_user(username)
