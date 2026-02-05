@@ -4,6 +4,7 @@
   <title>Profile · GameList</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
 
@@ -15,26 +16,41 @@
     <h2>GameList</h2>
   </div>
 
-  <div style="display: flex;">
-    <div class="search-box">
-      <svg class="search-icon" viewBox="0 0 24 24">
-        <path d="M10 2a8 8 0 105.293 14.293l4.707 4.707 1.414-1.414-4.707-4.707A8 8 0 0010 2zm0 2a6 6 0 110 12 6 6 0 010-12z"/>
-      </svg>
-      <input
-        type="text"
-        id="search-input"
-        placeholder="Search GameList"
-        autocomplete="off"
-      />
-      <div id="search-loader" class="search-loader"></div>
-      <div id="search-results" class="search-results"></div>
-    </div>
+  <div class="search-box">
+    <span id="search-icon" class="material-icons">
+      search
+    </span>
+    <input
+      type="text"
+      id="search-input"
+      placeholder="Search GameList"
+      autocomplete="off"
+    />
+    <div id="search-loader" class="search-loader"></div>
+    <div id="results" class="results"><div id="search-results" class="search-results"></div></div>
   </div>
 
   <div class="nav-links">
     <a href="home">Home</a>
     <a href="profile">Profile</a>
     <a href="#" id="logout-btn">Logout</a>
+  </div>
+  <div class="nav-links-mobile">
+    <a href="home">
+      <span class="material-icons">
+        home
+      </span>
+    </a>
+    <a href="profile">
+      <span class="material-icons">
+        account_circle
+      </span>
+    </a>
+    <a href="#" id="logout-btn">
+      <span class="material-icons">
+        logout
+      </span>
+    </a>
   </div>
 </header>
 
