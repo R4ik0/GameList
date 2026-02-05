@@ -406,6 +406,14 @@ button {
   .game-right h1 {
     font-size: 24px;
   }
+
+  .game-right .game-storyline{
+    margin-bottom: 0;
+  }
+
+  .game-right {
+    margin-bottom: 0;
+  }
 }
 
 
