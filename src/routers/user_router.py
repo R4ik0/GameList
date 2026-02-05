@@ -16,7 +16,7 @@ router = APIRouter(prefix="", tags=["user"])
 # GET CURRENT USER
 # -----------------------
 @router.get("/me", response_model=dict)
-async def read_users_me(current_user = Annotated[dict, Depends(get_current_user)]):
+async def read_users_me(current_user: Annotated[dict, Depends(get_current_user)]):
     print(current_user)
     return current_user
 
@@ -29,7 +29,7 @@ async def read_users_me(current_user = Annotated[dict, Depends(get_current_user)
 # GET USER GAMESLIST
 # -----------------------
 @router.get("/GamesList", response_model=dict)
-async def get_gameslist(current_user = Annotated[dict, Depends(get_current_user)]):
+async def get_gameslist(current_user: Annotated[dict, Depends(get_current_user)]):
     return current_user["gamelist"]
 
 
@@ -41,7 +41,7 @@ async def get_gameslist(current_user = Annotated[dict, Depends(get_current_user)
 async def add_or_update_game(
     game_id: int,
     rating: float,
-    current_user = Annotated[dict, Depends(get_current_user)]
+    current_user: Annotated[dict, Depends(get_current_user)]
 ):
     current_user["gamelist"][game_id] = rating
     update_user_gameslist(current_user)
@@ -56,7 +56,7 @@ async def add_or_update_game(
 @router.delete("/GamesList/{game_id}", response_model=dict)
 async def delete_game( 
     game_id: int,
-    current_user = Annotated[dict, Depends(get_current_user)]
+    current_user: Annotated[dict, Depends(get_current_user)]
 ):
     if game_id in current_user["gamelist"]:
         del current_user["gamelist"][game_id]
