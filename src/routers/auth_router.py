@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends, Form
 from fastapi.security import OAuth2PasswordRequestForm
+from typing import Annotated
 
 from src.models.tokens import Token, RefreshRequest, create_access_token, create_refresh_token, decode_token
 from src.models.user import authenticate_user, create_user
@@ -15,7 +16,7 @@ router = APIRouter(prefix="", tags=["auth"])
 # LOGIN
 # -----------------------
 @router.post("/login", response_model=Token)
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     # Vérifie l'utilisateur dans la base
     user = authenticate_user(form_data.username, form_data.password)
     if not user:
@@ -34,7 +35,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
 # SIGNIN
 # -----------------------
 @router.post("/signin", response_model=Token)
-async def signin(form_data: OAuth2PasswordRequestForm = Depends(), role: str = Form(default="user")):
+async def signin(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], role = Annotated[str, Form(default="user")]):
     # Créer l'utilisateur
     user = create_user(
         username=form_data.username,
@@ -62,7 +63,7 @@ async def signin(form_data: OAuth2PasswordRequestForm = Depends(), role: str = F
 # ROUTE PROTÉGÉE
 # -----------------------
 @router.get("/protected")
-async def protected(current_user = Depends(get_current_user)):
+async def protected(current_user = Annotated[dict, Depends(get_current_user)]):
     return {"message": f"Hello {current_user['username']}, this is protected"}
 
 
