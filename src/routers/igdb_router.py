@@ -97,18 +97,15 @@ async def get_essential(ids: List[int]):
         .in_("id_game", ids)
         .execute()
     )
-
     data = existing.data or []
     dict_by_id = {}
     for game in data:
         game["id"] = game.pop("id_game")
         dict_by_id[game["id"]] = game
-
     if len(existing.data) == len(ids):
         return existing.data
     else:
         missing_ids = set(ids) - {item["id"] for item in existing.data}
-        print(f"Missing IDs: {missing_ids}")
         images = get_cover_url(list(missing_ids))
         games = {game.get("id") : game for game in get_name_from_attribute_id("games", list(missing_ids))}
         for i in range(len(missing_ids)):
@@ -118,5 +115,4 @@ async def get_essential(ids: List[int]):
                 "name": game.get("name"),
                 "cover": images[i]
             }
-        
         return [dict_by_id[i] for i in ids]
