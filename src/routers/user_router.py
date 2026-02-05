@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends
 from typing import Annotated
 
 
-from src.models.user import update_user_gameslist, search_users
+from src.models.user import update_user_gameslist, search_users, get_user
 from src.models.game import create_game_in_bdd
 from dependencies import get_current_user
 
@@ -19,18 +19,6 @@ router = APIRouter(prefix="", tags=["user"])
 async def read_users_me(current_user: Annotated[dict, Depends(get_current_user)]):
     print(current_user)
     return current_user
-
-# curl -X GET "http://localhost:8000/me" \
-#   -H "Authorization: Bearer "
-
-
-
-# -----------------------
-# GET USER GAMESLIST
-# -----------------------
-@router.get("/GamesList", response_model=dict)
-async def get_gameslist(current_user: Annotated[dict, Depends(get_current_user)]):
-    return current_user["gamelist"]
 
 
 
@@ -68,3 +56,9 @@ async def delete_game(
 @router.post("/searchUser")
 async def search_user(query:str):
     return search_users(query)
+
+
+
+@router.get("/user/{username}")
+async def read_users_me(username:str):
+    return get_user(username)
