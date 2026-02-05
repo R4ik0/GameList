@@ -90,32 +90,53 @@ async def get_full_game(id: int):
 
 @router.post("/get_essential")
 async def get_essential(ids: List[int]):
-    existing = (
-        supabase
-        .table("games")
-        .select("id_game, name, cover")
-        .in_("id_game", ids)
-        .execute()
-    )
+    # existing = (
+    #     supabase
+    #     .table("games")
+    #     .select("id_game, name, cover")
+    #     .in_("id_game", ids)
+    #     .execute()
+    # )
 
-    data = existing.data or []
-    dict_by_id = {}
-    for game in data:
-        game["id"] = game.pop("id_game")
-        dict_by_id[game["id"]] = game
+    # data = existing.data or []
+    # dict_by_id = {}
+    # for game in data:
+    #     game["id"] = game.pop("id_game")
+    #     dict_by_id[game["id"]] = game
 
-    if len(existing.data) == len(ids):
-        return existing.data
-    else:
-        missing_ids = set(ids) - {item["id"] for item in existing.data}
-        print(f"Missing IDs: {missing_ids}")
-        images = get_cover_url(list(missing_ids))
-        games = get_name_from_attribute_id("games", list(missing_ids))
-        for i in range(len(missing_ids)):
-            dict_by_id[games[i]["id"]] = {
-                "id": games[i]["id"],
-                "name": games[i]["name"],
-                "cover": images[i]
-            }
+    # if len(existing.data) == len(ids):
+    #     return existing.data
+    # else:
+    #     missing_ids = set(ids) - {item["id"] for item in existing.data}
+    #     print(f"Missing IDs: {missing_ids}")
+    #     images = get_cover_url(list(missing_ids))
+    #     games = get_name_from_attribute_id("games", list(missing_ids))
+    #     for i in range(len(missing_ids)):
+    #         dict_by_id[games[i]["id"]] = {
+    #             "id": games[i]["id"],
+    #             "name": games[i]["name"],
+    #             "cover": images[i]
+    #         }
         
-        return [dict_by_id[i] for i in ids]
+    #     return [dict_by_id[i] for i in ids]
+    result = []
+    ids2=[]
+    for id in ids:
+        existing = (
+            supabase
+            .table("games")
+            .select("id_game, name, cover")
+            .eq("id_game", id)
+            .execute()
+        )
+        if existing.data:
+            game = existing.data[0]
+            game["id"] = game.pop("id_game")
+            result.append(game)
+        else:
+            ids2.append(id)
+    games = {game.get("id"):game.get("name") for game in get_name_from_attribute_id("games",ids2)}
+    images = get_cover_url(ids2)
+    game_names = [{"id": ids2[i], "name": games.get(ids2[i]), "cover": images[i]} for i in range(len(ids2))]
+    result += game_names
+    return result
