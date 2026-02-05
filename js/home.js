@@ -3,10 +3,8 @@ async function loadRecommendations() {
   const list = document.getElementById("games-list");
   list.innerHTML = "";
 
-  // 🔥 res = [id, id, id] ou [{id: x}]
   const ids = res.map(g => g.id ?? g);
 
-  // 🔥 appel batch
   const gamesInfos = await api("/get_essential", ids, "POST");
 
   for (const game of gamesInfos) {
