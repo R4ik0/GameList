@@ -15,18 +15,29 @@ router = APIRouter(prefix="", tags=["auth"])
 # -----------------------
 # LOGIN
 # -----------------------
-@router.post("/login", response_model=Token)
+@router.post(
+    "/login", 
+    response_model=Token,
+    responses={
+        422: {"description": "Validation error: Username is required or too long"},
+        401: {"description": "Invalid username or password"}
+    }
+)
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
-    # Vérifie l'utilisateur dans la base
+    if not form_data.username:
+        raise HTTPException(status_code=422, detail="Username is required")
+    if len(form_data.username) > 100:
+        raise HTTPException(status_code=422, detail="Username too long")
+    
     user = authenticate_user(form_data.username, form_data.password)
     if not user:
-        raise HTTPException(status_code=401, detail="Incorrect credentials")
+        raise HTTPException(status_code=401, detail="Invalid username or password")
 
-    # Crée access + refresh token
+
     access_token = create_access_token(data={"sub": user["username"]})
     refresh_token = create_refresh_token(data={"sub": user["username"]})
     return Token(access_token=access_token, refresh_token=refresh_token)
-#curl -X POST "http://localhost:8000/login"   -H "Content-Type: application/x-www-form-urlencoded"   -d "username=admin"   -d "password=adminpass"
+
 
 
 
@@ -34,7 +45,13 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
 # -----------------------
 # SIGNIN
 # -----------------------
-@router.post("/signin", response_model=Token)
+@router.post(
+    "/signin", 
+    response_model=Token,
+    responses={
+        400: {"description": "Username already exists"},
+    }
+)
 async def signin(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], role = Annotated[str, Form(default="user")]):
     # Créer l'utilisateur
     user = create_user(
@@ -70,7 +87,13 @@ async def protected(current_user = Annotated[dict, Depends(get_current_user)]):
 # -----------------------
 # REFRESH TOKEN
 # -----------------------
-@router.post("/refresh", response_model=Token)
+@router.post(
+    "/refresh", 
+    response_model=Token,
+    responses={
+        401: {"description": "Invalid refresh token or token payload"}
+    }
+)
 async def refresh_token(request: RefreshRequest):
     payload = decode_token(request.refresh_token)
 

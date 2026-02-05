@@ -1,11 +1,10 @@
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from jose import jwt, JWTError
 from fastapi import HTTPException
 
 from config import *
-from src.models.tokens import *
 
 
 
@@ -27,9 +26,9 @@ class RefreshRequest(BaseModel):
 def create_access_token(data: dict, expiration_delta: Optional[timedelta] = None):
     to_encode = data.copy()
     if expiration_delta:
-        expire = datetime.utcnow() + expiration_delta
+        expire = datetime.now(timezone.utc) + expiration_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
@@ -37,7 +36,7 @@ def create_access_token(data: dict, expiration_delta: Optional[timedelta] = None
 
 def create_refresh_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta or REFRESH_TOKEN_EXPIRE)
+    expire = datetime.now(timezone.utc) + (expires_delta or REFRESH_TOKEN_EXPIRE)
     to_encode.update({"exp": expire, "type": "refresh"})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt

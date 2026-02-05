@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import OAuth2PasswordRequestForm
-from src.models.game import Game, get_game_from_igdb, get_best_X_games, search_game, get_name_from_attribute_id, get_cover_url, get_similar_games, get_best_similar_games, create_game_in_bdd
+from src.models.game import Game, get_game_from_igdb, get_x_best_games, search_game, get_name_from_attribute_id, get_cover_url, get_similar_games, get_best_similar_games, create_game_in_bdd
 from game_recommender import GameRecommender
 from dependencies import get_current_user
 from typing import Annotated
@@ -21,12 +21,12 @@ async def get_game_from_id(id: int):
 
 
 
-@router.post("/recommendation")
+@router.post("/recommendation", responses={400: {"description":"User not supported by recommendation model"}})
 async def get_recommended_games(top_k: int = 10, current_user = Annotated[dict, Depends(get_current_user)]):
     try:
         if len(current_user["gamelist"]) == 0:
-            best_X_games = get_best_X_games(top_k)
-            return [x.get("id") for x in best_X_games]
+            best_x_games = get_x_best_games(top_k)
+            return [x.get("id") for x in best_x_games]
         recommender = GameRecommender()
         recommender.load_from_supabase()
         temp = get_similar_games(current_user["gamelist"])
@@ -37,10 +37,7 @@ async def get_recommended_games(top_k: int = 10, current_user = Annotated[dict, 
         results = recommender.recommend_from_candidates(current_user["id"], list_temp, top_k)
         return [x[0] for x in results]
     except ValueError:
-        raise HTTPException(
-            status_code=400,
-            detail="User not supported by recommendation model"
-        )
+        raise HTTPException(status_code=400, detail="User not supported by recommendation model")
 
 
 
