@@ -28,7 +28,7 @@ name: SonarQube analysis
 
 on:
   push:
-    branches: [ back, Thibault ]
+    branches: [main]
   pull_request:
     types: [opened, synchronize, reopened]
   workflow_dispatch:
