@@ -18,27 +18,39 @@ app = FastAPI(title="GameList API", version="1.0.0")
 
 @app.middleware("http")
 async def prometheus_middleware(request: Request, call_next):
+    print("\n[PROM] Middleware called")
+
     start_time = time.time()
     response = await call_next(request)
     duration = time.time() - start_time
 
     endpoint = request.url.path
 
-    REQUEST_COUNT.labels(
-        method=request.method,
-        endpoint=endpoint,
-        status=response.status_code
-    ).inc()
+    print(f"[PROM] {request.method} {endpoint} -> {response.status_code}")
+    print(f"[PROM] Duration: {duration:.4f}s")
 
-    REQUEST_LATENCY.labels(endpoint=endpoint).observe(duration)
+    try:
+        REQUEST_COUNT.labels(
+            method=request.method,
+            endpoint=endpoint,
+            status=response.status_code
+        ).inc()
+
+        REQUEST_LATENCY.labels(endpoint=endpoint).observe(duration)
+
+        print("[PROM] Metrics updated")
+    except Exception as e:
+        print("[PROM] Metrics update error:", repr(e))
 
     try:
         push_metrics()
-    except Exception:
-        print("Failed to push metrics")
-        pass  # ne jamais bloquer l’API
+        print("[PROM] Metrics pushed to Grafana Cloud")
+    except Exception as e:
+        print("[PROM] Metrics push failed")
+        print("[PROM] Reason:", repr(e))
 
     return response
+
 
 app.add_middleware(
     CORSMiddleware,
