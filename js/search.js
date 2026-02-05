@@ -91,12 +91,12 @@ document.addEventListener("click", (e) => {
 
 document.getElementById("search-input").addEventListener("focus", () => {
   showOverlay();
+  hideMobileNav();
 
   if (lastQuery.length > 0) {
     searchGames(lastQuery);
   }
 });
-
 
 document.getElementById("search-overlay").addEventListener("click", () => {
   hideOverlay();
@@ -115,4 +115,28 @@ function showOverlay() {
 function hideOverlay() {
   document.getElementById("search-overlay").style.display = "none";
   hideResults();
+  showMobileNav();
 }
+
+function isMobileWidth() {
+  return window.innerWidth < 830;
+}
+
+function hideMobileNav() {
+  if (!isMobileWidth()) return;
+  document.querySelector(".nav-links-mobile")
+    ?.classList.add("hidden-for-search");
+  document.querySelector(".search-box")
+    ?.classList.add("expanded");
+}
+
+function showMobileNav() {
+  document.querySelector(".nav-links-mobile")
+    ?.classList.remove("hidden-for-search");
+  document.querySelector(".search-box")
+    ?.classList.remove("expanded");
+}
+
+document.getElementById("search-input").addEventListener("blur", () => {
+  setTimeout(showMobileNav, 150);
+});
