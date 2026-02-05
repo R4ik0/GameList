@@ -17,3 +17,4 @@ def push_metrics():
         auth=HTTPBasicAuth(USERNAME, PASSWORD),
         timeout=5
     )
+    print("PUSH METRICS ->", REMOTE_WRITE_URL)

@@ -8,6 +8,9 @@ from src.routers import auth_router, igdb_router, user_router
 from dependencies import get_current_user
 import uvicorn
 
+from dotenv import load_dotenv
+load_dotenv()
+
 from metrics import REQUEST_COUNT, REQUEST_LATENCY
 from push_metrics import push_metrics
 
@@ -32,6 +35,7 @@ async def prometheus_middleware(request: Request, call_next):
     try:
         push_metrics()
     except Exception:
+        print("Failed to push metrics")
         pass  # ne jamais bloquer l’API
 
     return response
