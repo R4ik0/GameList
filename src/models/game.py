@@ -84,7 +84,7 @@ def get_name_from_attribute_id(attribute, attribute_id_list):
 
 
 
-def get_best_X_games(X):
+def get_x_best_games(X):
     url = "https://api.igdb.com/v4/games/"
     headers = {
         "Client-ID": CLIENT_ID,
