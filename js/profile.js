@@ -76,3 +76,9 @@ document.getElementById("logout-btn").addEventListener("click", () => {
     localStorage.removeItem("refresh_token");
     window.location.href = "/GameList/";
 });
+
+document.getElementById("logout-btn-mobile").addEventListener("click", () => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    window.location.href = "/GameList/";
+});
