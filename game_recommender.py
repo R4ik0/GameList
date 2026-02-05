@@ -7,6 +7,8 @@ from src.models.game import get_game_from_igdb
 import numpy as np
 
 
+generator = np.random.default_rng(42)
+
 load_dotenv()
 
 
@@ -62,7 +64,7 @@ class NpMLPRegressor:
         self.b = []
 
         for i in range(len(layer_sizes)-1):
-            self.W.append(np.random.randn(layer_sizes[i], layer_sizes[i+1]) * 0.1)
+            self.W.append(generator.standard_normal(layer_sizes[i], layer_sizes[i+1]) * 0.1)
             self.b.append(np.zeros((1, layer_sizes[i+1])))
 
     def relu(self, x):
@@ -184,7 +186,7 @@ class GameRecommender:
         # Transformer l'utilisateur
         try:
             u_idx = self.user_enc.transform([user_id])
-            X_user = one_hot(u_idx, len(self.user_enc.classes_))
+            x_user = one_hot(u_idx, len(self.user_enc.classes_))
 
         except ValueError:
             print(f"User {user_id} not found in the model.")
@@ -195,11 +197,11 @@ class GameRecommender:
         for gid in candidate_game_ids:
             if gid in self.game_enc.classes_:
                 g_idx = self.game_enc.transform([gid])
-                X_game = one_hot(g_idx, len(self.game_enc.classes_))
+                x_game = one_hot(g_idx, len(self.game_enc.classes_))
                 f_feat = self.game_features[g_idx]
 
             else:
-                X_game = np.zeros((1, len(self.game_enc.classes_)))
+                x_game = np.zeros((1, len(self.game_enc.classes_)))
                 
                 try:
                     g = get_game_from_igdb(gid)
@@ -220,8 +222,8 @@ class GameRecommender:
                     pad = np.zeros((1, expected_dim - f_feat.shape[1]))
                     f_feat = np.concatenate([f_feat, pad], axis=1)
 
-            X_pred = np.concatenate([X_user, X_game, f_feat], axis=1)
-            score = self.model.predict(X_pred)[0]
+            x_pred = np.concatenate([x_user, x_game, f_feat], axis=1)
+            score = self.model.predict(x_pred)[0]
             results.append((gid, score))
 
         results.sort(key=lambda x: x[1], reverse=True)
