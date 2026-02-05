@@ -3,7 +3,7 @@ import io
 import joblib
 from supabase import create_client
 from dotenv import load_dotenv
-from src.models.game import get_game_from_igdb, create_game_in_bdd
+from src.models.game import get_game_from_igdb
 import numpy as np
 
 
@@ -225,8 +225,4 @@ class GameRecommender:
             results.append((gid, score))
 
         results.sort(key=lambda x: x[1], reverse=True)
-        
-        for gid, _ in results[:top_k]:
-            create_game_in_bdd(gid)
-        
         return results[:top_k]
