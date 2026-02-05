@@ -240,8 +240,23 @@ header h2 {
   .nav-links-mobile {
     display: flex;
   }
+
+  .search-box {
+    flex: 1;
+  }
+
+  .search-box.expanded {
+    flex: 1 1 100%;
+  }
+
+  .search-box.expanded input {
+    width: 100%;
+  }
 }
 
+.nav-links-mobile.hidden-for-search {
+  display: none;
+}
 
 .container {
   padding: 20px;
