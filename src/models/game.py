@@ -170,8 +170,6 @@ def get_best_similar_games(id_list):
 
 
 
-
-
 def create_game_in_bdd(game_id: str) -> Optional[dict]:
     # Vérifier existence
     existing = (
