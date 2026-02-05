@@ -69,7 +69,7 @@ async function searchGames(query) {
       box.appendChild(item);
     });
 
-    box.style.display = results.length ? "block" : "none";
+    box.style.display = results.length ? "flex" : "none";
 
   } finally {
     if (mySearchId === lastSearchId) {
@@ -99,6 +99,11 @@ document.getElementById("search-input").addEventListener("focus", () => {
 
 
 document.getElementById("search-overlay").addEventListener("click", () => {
+  hideOverlay();
+  document.getElementById("search-input").blur();
+});
+
+document.getElementById("results").addEventListener("click", () => {
   hideOverlay();
   document.getElementById("search-input").blur();
 });
