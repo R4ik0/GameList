@@ -2,7 +2,7 @@ from pickle import GET
 from fastapi import APIRouter, Depends
 
 
-from src.models.user import update_user_gameslist
+from src.models.user import update_user_gameslist, search_users
 from src.models.game import create_game_in_bdd
 from dependencies import get_current_user
 
@@ -61,3 +61,9 @@ async def delete_game(
         del current_user["gamelist"][game_id]
         update_user_gameslist(current_user)
     return current_user["gamelist"]
+
+
+
+@router.post("/searchUser")
+async def search_user(query:str):
+    return search_users(query)
