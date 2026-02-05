@@ -98,20 +98,21 @@ def get_best_X_games(X):
     return response
 
 
-def get_cover_url(game_id):
+
+def get_cover_url(game_id_list):
     url = "https://api.igdb.com/v4/covers"
     headers = {
         "Client-ID": CLIENT_ID,
         "Authorization": f"Bearer {ACCESS_TOKEN}",
         "Content-Type": "text/plain"
     }
-    body = f"fields image_id; where game = {game_id};"
+    id_string = ", ".join(str(i) for i in game_id_list)
+    body = f"fields game, image_id; where game = ({id_string}); limit {len(game_id_list)};"
     response = requests.post(url, headers=headers, data=body)
     response.raise_for_status()
-    if len(response.json()) == 0:
-        return "co86z1"
-    response = response.json()[0]
-    return response.get("image_id")
+    existing_covers = {cover["game"]: cover["image_id"] for cover in response.json()}
+    result = [existing_covers.get(game_id, "co86z1") for game_id in game_id_list]
+    return result
 
 
 
@@ -126,9 +127,9 @@ def search_game(name):
     response = requests.post(url, headers=headers, data=body)
     response.raise_for_status()
     result = response.json()
-    for i in range(len(response.json())):
-        image = get_cover_url(response.json()[i]['id'])
-        result[i]['image'] = image
+    images = get_cover_url([i.get("id") for i in result])
+    for i in range(len(result)):
+        result[i]['image'] = images[i]
     return result
 
 
@@ -198,7 +199,7 @@ def create_game_in_bdd(game_id: str) -> Optional[dict]:
             for item in get_name_from_attribute_id(attr, values)
         )
     
-    cover = get_cover_url(game_id)
+    cover = get_cover_url([game_id])[0]
 
     json_game = {
         "id_game": game.id,

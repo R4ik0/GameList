@@ -43,7 +43,6 @@ async def get_recommended_games(top_k: int = 10, current_user = Depends(get_curr
 
 
 
-
 @router.post("/search")
 async def get_games_from_name(name: str):
     game_list = search_game(name)
@@ -84,7 +83,7 @@ async def get_full_game(id: int):
             item["name"]
             for item in get_name_from_attribute_id(attr, values)
         )
-    cover = get_cover_url(id)
+    cover = get_cover_url([id])[0]
     return Game(id = game.id, name = game.name, genres = genres, themes = themes, game_modes = game_modes, platforms = platforms, storyline = game.storyline, cover = cover)
 
 
