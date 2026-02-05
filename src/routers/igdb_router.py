@@ -97,13 +97,11 @@ async def get_essential(ids: List[int]):
         .in_("id_game", ids)
         .execute()
     )
-
     data = existing.data or []
     dict_by_id = {}
     for game in data:
         game["id"] = game.pop("id_game")
         dict_by_id[game["id"]] = game
-
     if len(existing.data) == len(ids):
         return existing.data
     else:
@@ -118,5 +116,4 @@ async def get_essential(ids: List[int]):
                 "name": game.get("name"),
                 "cover": images[i]
             }
-        
         return [dict_by_id[i] for i in ids]
