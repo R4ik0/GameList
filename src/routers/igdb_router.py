@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import OAuth2PasswordRequestForm
-from src.models.game import Game, get_game_from_igdb, get_best_X_games, search_game, get_name_from_attribute_id, get_cover_url, get_similar_games, get_best_similar_games
+from src.models.game import Game, get_game_from_igdb, get_best_X_games, search_game, get_name_from_attribute_id, get_cover_url, get_similar_games, get_best_similar_games, create_game_in_bdd
 from game_recommender import GameRecommender
 from dependencies import get_current_user
 from operator import itemgetter
@@ -34,6 +34,10 @@ async def get_recommended_games(top_k: int = 10, current_user = Depends(get_curr
             similar_games += i.get("similar_games",[])
         list_temp = [i.get("id") for i in get_best_similar_games(similar_games) if f"{i.get('id')}" not in current_user["gamelist"].keys()][:100]
         results = recommender.recommend_from_candidates(current_user["id"], list_temp, top_k)
+        
+        for gid, _ in results:
+            create_game_in_bdd(gid)
+        
         return [x[0] for x in results]
     except ValueError:
         raise HTTPException(
