@@ -43,7 +43,6 @@ async def get_recommended_games(top_k: int = 10, current_user = Depends(get_curr
 
 
 
-
 @router.post("/search")
 async def get_games_from_name(name: str):
     game_list = search_game(name)
@@ -84,21 +83,21 @@ async def get_full_game(id: int):
             item["name"]
             for item in get_name_from_attribute_id(attr, values)
         )
-    cover = get_cover_url(id)
+    cover = get_cover_url([id])[0]
     return Game(id = game.id, name = game.name, genres = genres, themes = themes, game_modes = game_modes, platforms = platforms, storyline = game.storyline, cover = cover)
 
 
 
 @router.post("/get_essential")
 async def get_essential(ids: List[int]):
-    game_names = get_name_from_attribute_id("games",ids)
     result = []
-    for i in range(len(game_names)):
+    ids2=[]
+    for id in ids:
         existing = (
             supabase
             .table("games")
             .select("id_game, name, cover")
-            .eq("id_game", game_names[i].get("id"))
+            .eq("id_game", id)
             .execute()
         )
         if existing.data:
@@ -106,5 +105,9 @@ async def get_essential(ids: List[int]):
             game["id"] = game.pop("id_game")
             result.append(game)
         else:
-            result.append({"id": game_names[i].get("id"), "name": game_names[i].get("name"), "cover": get_cover_url(game_names[i].get("id"))})
+            ids2.append(id)
+    games = {game.get("id"):game.get("name") for game in get_name_from_attribute_id("games",ids2)}
+    images = get_cover_url(ids2)
+    game_names = [{"id": ids2[i], "name": games.get(ids2[i]), "cover": images[i]} for i in range(len(ids2))]
+    result += game_names
     return result
