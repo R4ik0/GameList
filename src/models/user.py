@@ -73,3 +73,16 @@ def authenticate_user(username: str, password: str) -> Optional[dict]:
     if not verify_password(password, user["password"]):
         return None
     return user
+
+
+def search_users(query: str) -> Optional[list[dict]]:
+    if not query:
+        return []
+    res = (
+        supabase
+        .table("users")
+        .select("id, username, role")
+        .ilike("username", f"%{query}%")
+        .execute()
+    )
+    return res.data if res.data else []
