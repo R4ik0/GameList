@@ -80,7 +80,7 @@ async def signin(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], rol
 # ROUTE PROTÉGÉE
 # -----------------------
 @router.get("/protected")
-async def protected(current_user = Annotated[dict, Depends(get_current_user)]):
+async def protected(current_user: Annotated[dict, Depends(get_current_user)]):
     return {"message": f"Hello {current_user['username']}, this is protected"}
 
 

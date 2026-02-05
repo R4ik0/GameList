@@ -24,7 +24,7 @@ def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
 
 
 def require_roles(*roles):
-    def dep(current_user = Annotated[dict, Depends(get_current_user)]):
+    def dep(current_user: Annotated[dict, Depends(get_current_user)]):
         if current_user["role"] not in roles:
             raise HTTPException(status_code=403, detail="Forbidden")
         return current_user

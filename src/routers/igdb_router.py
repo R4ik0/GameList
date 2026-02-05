@@ -21,8 +21,11 @@ async def get_game_from_id(id: int):
 
 
 
-@router.post("/recommendation", responses={400: {"description":"User not supported by recommendation model"}})
-async def get_recommended_games(top_k: int = 10, current_user = Annotated[dict, Depends(get_current_user)]):
+@router.post(
+    "/recommendation", 
+    responses={400: {"description":"User not supported by recommendation model"}}
+)
+async def get_recommended_games(current_user: Annotated[dict, Depends(get_current_user)], top_k: int = 10):
     try:
         if len(current_user["gamelist"]) == 0:
             best_x_games = get_x_best_games(top_k)
