@@ -90,16 +90,14 @@ async def get_full_game(id: int):
 
 @router.post("/get_essential")
 async def get_essential(ids: List[int]):
-    games = {game.get("id"):game.get("name") for game in get_name_from_attribute_id("games",ids)}
-    images = get_cover_url(ids)
-    game_names = [{"id": ids[i], "name": games.get(ids[i]), "cover": images[i]} for i in range(len(ids))]
     result = []
-    for i in range(len(game_names)):
+    ids2=[]
+    for id in ids:
         existing = (
             supabase
             .table("games")
             .select("id_game, name, cover")
-            .eq("id_game", game_names[i].get("id"))
+            .eq("id_game", id)
             .execute()
         )
         if existing.data:
@@ -107,5 +105,9 @@ async def get_essential(ids: List[int]):
             game["id"] = game.pop("id_game")
             result.append(game)
         else:
-            result.append(game_names[i])
+            ids2.append(id)
+    games = {game.get("id"):game.get("name") for game in get_name_from_attribute_id("games",ids2)}
+    images = get_cover_url(ids2)
+    game_names = [{"id": ids2[i], "name": games.get(ids2[i]), "cover": images[i]} for i in range(len(ids2))]
+    result += game_names
     return result
