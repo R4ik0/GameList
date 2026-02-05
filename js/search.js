@@ -14,7 +14,7 @@ document.getElementById("search-input").addEventListener("input", (e) => {
   }
 
   searchTimeout = setTimeout(() => {
-    searchGames(query);
+    searchAll(query);
   }, 300);
 });
 
@@ -27,60 +27,89 @@ function hideLoader() {
   document.getElementById("search-loader").style.display = "none";
 }
 
-async function searchGames(query) {
+async function searchAll(query) {
   const mySearchId = ++lastSearchId;
-  const box = document.getElementById("search-results");
+
+  const gamesWrap = document.getElementById("games-container");
+  const usersWrap = document.getElementById("users-container");
+
+  const gamesBox = document.getElementById("games-results");
+  const usersBox = document.getElementById("users-results");
+
+  const resultsWrap = document.getElementById("results");
 
   showLoader();
 
   try {
-    const results = await api(
-      `/search?name=${encodeURIComponent(query)}`,
-      null,
-      "POST"
-    );
+
+    const [games, users] = await Promise.all([
+      api(`/search?name=${encodeURIComponent(query)}`, null, "POST"),
+      api(`/searchUser?query=${encodeURIComponent(query)}`, null, "POST")
+    ]);
 
     if (mySearchId !== lastSearchId) return;
 
-    if (mySearchId === lastSearchId) {
-      box.innerHTML = "";
+    gamesBox.innerHTML = "";
+    usersBox.innerHTML = "";
+
+    // ---------- GAMES ----------
+    if (games.length) {
+      gamesWrap.style.display = "block";
+
+      games.slice(0, 5).forEach(game => {
+        const item = document.createElement("div");
+        item.className = "search-result-item";
+
+        item.innerHTML = `
+          <img src="https://images.igdb.com/igdb/image/upload/t_cover_small/${game.image}.jpg">
+          <span>${game.name}</span>
+        `;
+
+        item.onclick = () => {
+          window.location.href = `game?id=${game.id}`;
+        };
+
+        gamesBox.appendChild(item);
+      });
+
+    } else {
+      gamesWrap.style.display = "none";
     }
 
-    results.slice(0, 5).forEach(game => {
-      const item = document.createElement("div");
-      item.className = "search-result-item";
+    // ---------- USERS ----------
+    if (users.length) {
+      usersWrap.style.display = "block";
 
-      const img = document.createElement("img");
-      img.src =
-        "https://images.igdb.com/igdb/image/upload/t_cover_small/" +
-        game.image +
-        ".jpg";
+      users.slice(0, 5).forEach(user => {
+        const item = document.createElement("div");
+        item.className = "search-result-item";
 
-      const span = document.createElement("span");
-      span.innerText = game.name;
+        item.innerHTML = `
+          <span class="material-icons">account_circle</span>
+          <span>${user.username}</span>
+        `;
 
-      item.appendChild(img);
-      item.appendChild(span);
+        item.onclick = () => {
+          window.location.href = `profile?user=${user.username}`;
+        };
 
-      item.onclick = () => {
-        window.location.href = `game?id=${game.id}`;
-      };
+        usersBox.appendChild(item);
+      });
 
-      box.appendChild(item);
-    });
+    } else {
+      usersWrap.style.display = "none";
+    }
 
-    box.style.display = results.length ? "flex" : "none";
+    resultsWrap.style.display =
+      (games.length || users.length) ? "flex" : "none";
 
   } finally {
-    if (mySearchId === lastSearchId) {
-      hideLoader();
-    }
+    if (mySearchId === lastSearchId) hideLoader();
   }
 }
 
 function hideResults() {
-  const box = document.getElementById("search-results");
-  box.style.display = "none";
+  document.getElementById("results").style.display = "none";
 }
 
 document.addEventListener("click", (e) => {
@@ -94,7 +123,7 @@ document.getElementById("search-input").addEventListener("focus", () => {
   hideMobileNav();
 
   if (lastQuery.length > 0) {
-    searchGames(lastQuery);
+    searchAll(lastQuery);
   }
 });
 
